@@ -41,7 +41,7 @@ class ClientFunctionalTest extends TestCase
             getenv('TEST_KEY_NAME'),
             getenv('TEST_KEY_VERSION')
         );
-        self::assertNotEquals('abc', $result->getValue());
+        self::assertNotEquals('test', $result->getValue());
         self::assertGreaterThan(300, strlen($result->getValue()));
         self::assertEquals(
             getenv('TEST_KEY_VAULT_URL') . '/keys/' . getenv('TEST_KEY_NAME') .
@@ -63,18 +63,17 @@ class ClientFunctionalTest extends TestCase
             getenv('TEST_KEY_NAME'),
             getenv('TEST_KEY_VERSION')
         );
-        self::assertNotEquals('abc', $result->getValue());
+        self::assertNotEquals('test', $result->getValue());
         $result = $client->decrypt(
             new EncryptDecryptRequest('RSA1_5', $result->getValue()),
             getenv('TEST_KEY_NAME'),
             getenv('TEST_KEY_VERSION')
         );
-        self::assertEquals('abc', $result->getValue());
+        self::assertEquals('test', $result->getValue());
         self::assertEquals(
             getenv('TEST_KEY_VAULT_URL') . '/keys/' . getenv('TEST_KEY_NAME') .
             '/' . getenv('TEST_KEY_VERSION'),
             $result->getKid()
         );
     }
-
 }
