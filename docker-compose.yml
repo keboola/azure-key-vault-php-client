@@ -13,8 +13,6 @@ services:
       - TEST_KEY_NAME
       - TEST_KEY_VERSION
     command: ["composer", "ci"]
-    volumes:
-      - ./build/logs:/code/build/logs/
 
   tests-local:
     <<: *tests
@@ -56,3 +54,4 @@ services:
     build: 
       context: .
       dockerfile: Dockerfile74
+    command: ["/code/docker/tests-cc.sh"]
