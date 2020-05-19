@@ -65,7 +65,7 @@ class ClientFunctionalTest extends TestCase
         );
         self::assertNotEquals('abc', $result->getValue());
         $result = $client->decrypt(
-            new EncryptDecryptRequest('RSA1_%', $result->getValue()),
+            new EncryptDecryptRequest('RSA1_5', $result->getValue()),
             getenv('TEST_KEY_NAME'),
             getenv('TEST_KEY_VERSION')
         );
