@@ -12,7 +12,7 @@ services:
       - TEST_KEY_VAULT_URL
       - TEST_KEY_NAME
       - TEST_KEY_VERSION
-    command: ["composer ci"]
+    command: ["composer", "ci"]
 
   tests-local:
     <<: *tests
