@@ -130,11 +130,11 @@ class ClientCredentialsEnvironmentAuthenticatorTest extends TestCase
         self::assertEquals('https://login.windows.net/tenant123/oauth2/token', $request->getUri()->__toString());
         self::assertEquals('POST', $request->getMethod());
         self::assertEquals('Azure PHP Client', $request->getHeader('User-Agent')[0]);
-        self::assertEquals('application/json', $request->getHeader('Content-type')[0]);
-        self::assertEquals('client_credentials', $request->getHeader('form_params')['grant_type']);
-        self::assertEquals('client123', $request->getHeader('form_params')['client_id']);
-        self::assertEquals('secret123', $request->getHeader('form_params')['client_secret']);
-        self::assertEquals('https://vault.azure.net', $request->getHeader('form_params')['resource']);
+        self::assertEquals('application/x-www-form-urlencoded', $request->getHeader('Content-type')[0]);
+        self::assertEquals(
+            'grant_type=client_credentials&client_id=client123&client_secret=secret123&resource=https%3A%2F%2Fvault.azure.net',
+            $request->getBody()->getContents()
+        );
     }
 
     public function testAuthenticateCustomMetadata()
@@ -195,11 +195,11 @@ class ClientCredentialsEnvironmentAuthenticatorTest extends TestCase
         self::assertEquals('https://my-custom-login/tenant123/oauth2/token', $request->getUri()->__toString());
         self::assertEquals('POST', $request->getMethod());
         self::assertEquals('Azure PHP Client', $request->getHeader('User-Agent')[0]);
-        self::assertEquals('application/json', $request->getHeader('Content-type')[0]);
-        self::assertEquals('client_credentials', $request->getHeader('form_params')['grant_type']);
-        self::assertEquals('client123', $request->getHeader('form_params')['client_id']);
-        self::assertEquals('secret123', $request->getHeader('form_params')['client_secret']);
-        self::assertEquals('https://https://my-custom/key-vault', $request->getHeader('form_params')['resource']);
+        self::assertEquals('application/x-www-form-urlencoded', $request->getHeader('Content-type')[0]);
+        self::assertEquals(
+            'grant_type=client_credentials&client_id=client123&client_secret=secret123&resource=https%3A%2F%2Fhttps%3A%2F%2Fmy-custom%2Fkey-vault',
+            $request->getBody()->getContents()
+        );
     }
 
     public function testAuthenticateInvalidMetadata()
