@@ -2,7 +2,18 @@
 
 namespace Keboola\AzureKeyVaultClient\Authentication;
 
-class ManagedCredentialsAuthenticator
+use Keboola\AzureKeyVaultClient\GuzzleClientFactory;
+use Psr\Log\LoggerInterface;
+
+class ManagedCredentialsAuthenticator implements AuthenticatorInterface
 {
 
+    public function __construct(LoggerInterface $logger, GuzzleClientFactory $clientFactory)
+    {
+    }
+
+    public function getAuthenticationToken()
+    {
+        // TODO: Implement getAuthenticationToken() method.
+    }
 }
