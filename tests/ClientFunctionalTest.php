@@ -5,9 +5,8 @@ namespace Keboola\AzureKeyVaultClient\Tests;
 use Keboola\AzureKeyVaultClient\Authentication\AuthenticatorFactory;
 use Keboola\AzureKeyVaultClient\Client;
 use Keboola\AzureKeyVaultClient\GuzzleClientFactory;
-use Keboola\AzureKeyVaultClient\Requests\EncryptRequest;
+use Keboola\AzureKeyVaultClient\Requests\EncryptDecryptRequest;
 use PHPUnit\Framework\TestCase;
-use Psr\Log\NullLogger;
 use Psr\Log\Test\TestLogger;
 
 class ClientFunctionalTest extends TestCase
@@ -38,7 +37,7 @@ class ClientFunctionalTest extends TestCase
             getenv('TEST_KEY_VAULT_URL')
         );
         $result = $client->encrypt(
-            new EncryptRequest('RSA1_5', 'test'),
+            new EncryptDecryptRequest('RSA1_5', 'test'),
             getenv('TEST_KEY_NAME'),
             getenv('TEST_KEY_VERSION')
         );
@@ -50,4 +49,32 @@ class ClientFunctionalTest extends TestCase
             $result->getKid()
         );
     }
+
+    public function testDecrypt()
+    {
+        $logger = new TestLogger();
+        $client = new Client($logger,
+            new GuzzleClientFactory(),
+            new AuthenticatorFactory(),
+            getenv('TEST_KEY_VAULT_URL')
+        );
+        $result = $client->encrypt(
+            new EncryptDecryptRequest('RSA1_5', 'test'),
+            getenv('TEST_KEY_NAME'),
+            getenv('TEST_KEY_VERSION')
+        );
+        self::assertNotEquals('abc', $result->getValue());
+        $result = $client->decrypt(
+            new EncryptDecryptRequest('RSA1_%', $result->getValue()),
+            getenv('TEST_KEY_NAME'),
+            getenv('TEST_KEY_VERSION')
+        );
+        self::assertEquals('abc', $result->getValue());
+        self::assertEquals(
+            getenv('TEST_KEY_VAULT_URL') . '/keys/' . getenv('TEST_KEY_NAME') .
+            '/' . getenv('TEST_KEY_VERSION'),
+            $result->getKid()
+        );
+    }
+
 }

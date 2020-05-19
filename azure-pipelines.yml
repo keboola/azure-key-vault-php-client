@@ -10,6 +10,10 @@ steps:
     docker-compose down
     docker-compose build --pull
     docker-compose pull
+    curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
+    chmod +x ./cc-test-reporter
+    ./cc-test-reporter before-build
+
   displayName: 'Build Tests'
 
 - script: docker-compose run --rm tests56
@@ -71,6 +75,13 @@ steps:
     TEST_KEY_VAULT_URL: $(TEST_KEY_VAULT_URL)
     TEST_KEY_NAME: $(TEST_KEY_VAULT_URL)
     TEST_KEY_VERSION: $(TEST_KEY_VERSION)
+
+- script: ./cc-test-reporter after-build
+  displayName: 'CodeClimate Reporter'
+  env:
+    GIT_COMMIT_SHA: $(Build.SourceVersion)
+    GIT_BRANCH: $(Build.SourceBranch)
+    CC_TEST_REPORTER_ID: $(CC_TEST_REPORTER_ID)
 
 - task: PublishTestResults@2
   displayName: 'Publish Test results'

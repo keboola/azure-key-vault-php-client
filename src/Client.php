@@ -10,7 +10,7 @@ use GuzzleHttp\Psr7\Request;
 use Keboola\AzureKeyVaultClient\Authentication\AuthenticatorFactory;
 use Keboola\AzureKeyVaultClient\Authentication\AuthenticatorInterface;
 use Keboola\AzureKeyVaultClient\Exception\ClientException;
-use Keboola\AzureKeyVaultClient\Requests\EncryptRequest;
+use Keboola\AzureKeyVaultClient\Requests\EncryptDecryptRequest;
 use Keboola\AzureKeyVaultClient\Responses\KeyOperationResult;
 use Psr\Http\Message\RequestInterface;
 use Psr\Log\LoggerInterface;
@@ -63,16 +63,33 @@ class Client
     }
 
     /**
-     * @param EncryptRequest $encryptRequest
+     * @param EncryptDecryptRequest $encryptRequest
      * @param $keyName
      * @param $keyVersion
      * @return KeyOperationResult
      */
-    public function encrypt(EncryptRequest $encryptRequest, $keyName, $keyVersion)
+    public function encrypt(EncryptDecryptRequest $encryptRequest, $keyName, $keyVersion)
     {
         $request = new Request(
             'POST',
             sprintf('keys/%s/%s/encrypt?api-version=%s', $keyName, $keyVersion, self::API_VERSION),
+            [],
+            \GuzzleHttp\json_encode($encryptRequest->getArray())
+        );
+        return new KeyOperationResult($this->sendRequest($request));
+    }
+
+    /**
+     * @param EncryptDecryptRequest $encryptRequest
+     * @param $keyName
+     * @param $keyVersion
+     * @return KeyOperationResult
+     */
+    public function decrypt(EncryptDecryptRequest $encryptRequest, $keyName, $keyVersion)
+    {
+        $request = new Request(
+            'POST',
+            sprintf('keys/%s/%s/decrypt?api-version=%s', $keyName, $keyVersion, self::API_VERSION),
             [],
             \GuzzleHttp\json_encode($encryptRequest->getArray())
         );

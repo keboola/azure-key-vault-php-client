@@ -13,6 +13,8 @@ services:
       - TEST_KEY_NAME
       - TEST_KEY_VERSION
     command: ["composer", "ci"]
+    volumes:
+      - ./build/logs:/code/build/logs/
 
   tests-local:
     <<: *tests
