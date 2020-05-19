@@ -20,8 +20,7 @@ class AuthenticatorFactory
             getenv(ClientCredentialsEnvironmentAuthenticator::ENV_AZURE_CLIENT_SECRET)
         ) {
             return new ClientCredentialsEnvironmentAuthenticator($logger, $clientFactory);
-        } else {
-            throw new ClientException('No suitable authentication method found.');
         }
+        throw new ClientException('No suitable authentication method found.');
     }
 }

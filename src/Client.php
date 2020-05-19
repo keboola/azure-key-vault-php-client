@@ -54,6 +54,7 @@ class Client
         try {
             if (!$this->token) {
                 $this->token = $this->authenticator->getAuthenticationToken();
+                $this->logger->info('Successfully authenticated.');
             }
             $response = $this->guzzle->send($request);
             return \GuzzleHttp\json_decode($response->getBody()->getContents(), true);

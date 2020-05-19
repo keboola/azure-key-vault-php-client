@@ -58,9 +58,7 @@ class GuzzleClientFactory
         ) use ($maxRetries) {
             if ($retries >= $maxRetries) {
                 return false;
-            } elseif ($response && $response->getStatusCode() >= 500) {
-                return true;
-            } elseif ($error) {
+            } elseif (($response && $response->getStatusCode() >= 500) || $error) {
                 return true;
             } else {
                 return false;
