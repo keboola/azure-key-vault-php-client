@@ -1,5 +1,6 @@
-vmImage: ubuntu-latest
-timeoutInMinutes: 30
+pool:
+  vmImage: ubuntu-latest
+pr: none
 
 steps:
 - script: docker info
