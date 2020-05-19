@@ -45,6 +45,7 @@ class Client
                     ->withHeader('Authorization', 'Bearer ' . $this->token);
             }
         ));
+        $this->logger = $logger;
         $this->guzzle = $clientFactory->getClient($logger, $vaultBaseUrl, ['handler' => $handlerStack]);
         $this->authenticator = $authenticatorFactory->getAuthenticator($logger, $clientFactory);
     }
