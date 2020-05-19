@@ -1,5 +1,5 @@
-pool:
-  name: 'Default'
+vmImage: ubuntu-latest
+timeoutInMinutes: 30
 
 steps:
 - script: docker info
