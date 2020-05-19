@@ -12,6 +12,10 @@ services:
       - TEST_KEY_VAULT_URL
       - TEST_KEY_NAME
       - TEST_KEY_VERSION
+      # For Codeclimate
+      - CC_TEST_REPORTER_ID
+      - GIT_BRANCH
+      - GIT_COMMIT_SHA
     command: ["composer", "ci"]
 
   tests-local:
