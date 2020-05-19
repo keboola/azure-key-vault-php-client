@@ -1,0 +1,50 @@
+version: "3"
+services:
+  # for development purposes
+  tests: &tests
+    build: 
+      context: .
+      dockerfile: Dockerfile74
+    environment:
+      - TEST_TENANT_ID
+      - TEST_CLIENT_ID
+      - TEST_CLIENT_SECRET
+      - TEST_KEY_VAULT_URL
+      - TEST_KEY_NAME
+      - TEST_KEY_VERSION
+    command: ["composer ci"]
+
+  tests-local:
+    <<: *tests
+    volumes:
+      - ./:/code
+
+  tests56:
+    <<: *tests
+    build: 
+      dockerfile: Dockerfile56
+
+  tests70:
+    <<: *tests
+    build: 
+      dockerfile: Dockerfile70
+
+  tests71:
+    <<: *tests
+    build: 
+      dockerfile: Dockerfile71
+
+  tests72:
+    <<: *tests
+    build: 
+      dockerfile: Dockerfile72
+
+  tests73:
+    <<: *tests
+    build: 
+      dockerfile: Dockerfile73
+
+  tests74:
+    <<: *tests
+    build: 
+      dockerfile: Dockerfile74
