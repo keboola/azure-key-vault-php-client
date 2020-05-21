@@ -91,7 +91,7 @@ class Client
             }
         }
     }
-    
+
     /**
      * @param EncryptDecryptRequest $encryptRequest
      * @param $keyName
