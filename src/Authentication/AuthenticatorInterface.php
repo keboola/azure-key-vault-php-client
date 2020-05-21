@@ -3,14 +3,15 @@
 namespace Keboola\AzureKeyVaultClient\Authentication;
 
 use Keboola\AzureKeyVaultClient\GuzzleClientFactory;
-use Psr\Log\LoggerInterface;
 
 interface AuthenticatorInterface
 {
-    public function __construct(LoggerInterface $logger, GuzzleClientFactory $clientFactory);
+    public function __construct(GuzzleClientFactory $clientFactory);
 
     /**
      * @return string
      */
     public function getAuthenticationToken();
+
+    public function checkUsability();
 }

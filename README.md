@@ -4,8 +4,8 @@ PHP client for [Azure Key Vault](https://docs.microsoft.com/en-us/rest/api/keyva
 
 Supports the following [authentication methods](https://docs.microsoft.com/en-us/azure/developer/go/azure-sdk-authorization):
 
-- Client credentials supplied in `AZURE_TENANT_ID`, `AZURE_CLIENT_ID` and `AZURE_CLIENT_SECRET` environment variables
-- Managed identity (supplied in `MSI_ENDPOINT` and `MSI_SECRET` environment variables).
+- **Client credentials** supplied in `AZURE_TENANT_ID`, `AZURE_CLIENT_ID` and `AZURE_CLIENT_SECRET` environment variables
+- **Managed identity** picked automatically if client credentials not specified and [Azure Instance Metadata](https://docs.microsoft.com/en-us/azure/virtual-machines/windows/instance-metadata-service) is available.
 
 Only key encrypt and decrypt methods are currently implemented.
 
@@ -19,8 +19,7 @@ Create client instance and encrypt data:
 
 ```php 
 $client = new Client(
-    $logger,
-    new GuzzleClientFactory(),
+    new GuzzleClientFactory($logger),
     new AuthenticatorFactory(),
     https://my-test-vault.vault.azure.net
 );

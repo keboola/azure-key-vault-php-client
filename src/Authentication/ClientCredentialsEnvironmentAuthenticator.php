@@ -39,10 +39,9 @@ class ClientCredentialsEnvironmentAuthenticator implements AuthenticatorInterfac
     /** @var string */
     private $cloudName;
 
-    public function __construct(LoggerInterface $logger, GuzzleClientFactory $clientFactory)
+    public function __construct(GuzzleClientFactory $clientFactory)
     {
-        $this->checkEnvironment();
-        $this->logger = $logger;
+        $this->logger = $clientFactory->getLogger();
         $this->armUrl = (string)getenv(self::ENV_AZURE_AD_RESOURCE);
         if (!$this->armUrl) {
             $this->armUrl = self::DEFAULT_ARM_URL;
@@ -61,10 +60,10 @@ class ClientCredentialsEnvironmentAuthenticator implements AuthenticatorInterfac
         $this->tenantId = (string)getenv(self::ENV_AZURE_TENANT_ID);
         $this->clientId = (string)getenv(self::ENV_AZURE_CLIENT_ID);
         $this->clientSecret = (string)getenv(self::ENV_AZURE_CLIENT_SECRET);
-        $this->client = $clientFactory->getClient($logger, $this->armUrl);
+        $this->client = $clientFactory->getClient($this->armUrl);
     }
 
-    public function processInstanceMetadata(array $metadataArray, $cloudName)
+    private function processInstanceMetadata(array $metadataArray, $cloudName)
     {
         $cloud = null;
         foreach ($metadataArray as $item) {
@@ -88,7 +87,7 @@ class ClientCredentialsEnvironmentAuthenticator implements AuthenticatorInterfac
         return $this->authenticate($metadata->getAuthenticationLoginEndpoint(), $keyVaultUrl);
     }
 
-    private function checkEnvironment()
+    public function checkUsability()
     {
         $errors = [];
         foreach ([self::ENV_AZURE_TENANT_ID, self::ENV_AZURE_CLIENT_ID, self::ENV_AZURE_CLIENT_SECRET] as $envVar) {
@@ -139,7 +138,8 @@ class ClientCredentialsEnvironmentAuthenticator implements AuthenticatorInterfac
             if (empty($data['access_token'])) {
                 throw new InvalidResponseException('Access token not provided in response: ' . json_encode($data));
             }
-            return (string)$data['access_token'];
+            $this->logger->info('Successfully authenticated using client credentials.');
+            return (string) $data['access_token'];
         } catch (GuzzleException $e) {
             throw new ClientException('Failed to get authentication token: ' . $e->getMessage(), $e->getCode(), $e);
         }

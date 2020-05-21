@@ -13,13 +13,21 @@ class AuthenticatorFactory
      * @param GuzzleClientFactory $clientFactory
      * @return AuthenticatorInterface
      */
-    public function getAuthenticator(LoggerInterface $logger, GuzzleClientFactory $clientFactory)
+    public function getAuthenticator(GuzzleClientFactory $clientFactory)
     {
-        if (getenv(ClientCredentialsEnvironmentAuthenticator::ENV_AZURE_TENANT_ID) &&
-            getenv(ClientCredentialsEnvironmentAuthenticator::ENV_AZURE_CLIENT_ID) &&
-            getenv(ClientCredentialsEnvironmentAuthenticator::ENV_AZURE_CLIENT_SECRET)
-        ) {
-            return new ClientCredentialsEnvironmentAuthenticator($logger, $clientFactory);
+        $authenticators = [
+            ClientCredentialsEnvironmentAuthenticator::class,
+            ManagedCredentialsAuthenticator::class,
+        ];
+        foreach ($authenticators as $authenticatorClass) {
+            /** @var AuthenticatorInterface $authenticator */
+            $authenticator = new $authenticatorClass($clientFactory);
+            try {
+                $authenticator->checkUsability();
+                return $authenticator;
+            } catch (ClientException $e) {
+                $clientFactory->getLogger()->debug($authenticatorClass . ' is not usable.');
+            }
         }
         throw new ClientException('No suitable authentication method found.');
     }

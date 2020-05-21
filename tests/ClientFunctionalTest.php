@@ -8,6 +8,7 @@ use Keboola\AzureKeyVaultClient\GuzzleClientFactory;
 use Keboola\AzureKeyVaultClient\Requests\EncryptDecryptRequest;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\Test\TestLogger;
+use RuntimeException;
 
 class ClientFunctionalTest extends TestCase
 {
@@ -17,7 +18,7 @@ class ClientFunctionalTest extends TestCase
             'TEST_KEY_NAME', 'TEST_KEY_VERSION'];
         foreach ($envs as $env) {
             if (!getenv($env)) {
-                throw new \RuntimeException(
+                throw new RuntimeException(
                     sprintf('At least one of %s environment variables is empty.', implode(', ', $envs))
                 );
             }
@@ -31,8 +32,8 @@ class ClientFunctionalTest extends TestCase
     public function testEncrypt()
     {
         $logger = new TestLogger();
-        $client = new Client($logger,
-            new GuzzleClientFactory(),
+        $client = new Client(
+            new GuzzleClientFactory($logger),
             new AuthenticatorFactory(),
             getenv('TEST_KEY_VAULT_URL')
         );
@@ -53,8 +54,8 @@ class ClientFunctionalTest extends TestCase
     public function testDecrypt()
     {
         $logger = new TestLogger();
-        $client = new Client($logger,
-            new GuzzleClientFactory(),
+        $client = new Client(
+            new GuzzleClientFactory($logger),
             new AuthenticatorFactory(),
             getenv('TEST_KEY_VAULT_URL')
         );
