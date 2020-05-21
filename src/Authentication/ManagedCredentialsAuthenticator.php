@@ -50,7 +50,10 @@ class ManagedCredentialsAuthenticator implements AuthenticatorInterface
     public function checkUsability()
     {
         try {
-            $client = $this->clientFactory->getClient(self::INSTANCE_METADATA_SERVICE_ENDPOINT, ['backoffMaxRetries' => 1]);
+            $client = $this->clientFactory->getClient(
+                self::INSTANCE_METADATA_SERVICE_ENDPOINT,
+                ['backoffMaxRetries' => 1]
+            );
             $client->get(sprintf('/metadata?api-version=%s&format=text', self::API_VERSION));
         } catch (GuzzleException $e) {
             throw new ClientException('Instance metadata service not available: ' . $e->getMessage(), 0, $e);

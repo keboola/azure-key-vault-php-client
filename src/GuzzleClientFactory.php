@@ -53,7 +53,11 @@ class GuzzleClientFactory
         );
         $unknownOptions = array_diff(array_keys($options), self::ALLOWED_OPTIONS);
         if ($unknownOptions) {
-            throw new ClientException(sprintf('Invalid options when creating client: %s. Valid options are: %s.', implode(', ', $unknownOptions), implode(', ', self::ALLOWED_OPTIONS)));
+            throw new ClientException(sprintf(
+                'Invalid options when creating client: %s. Valid options are: %s.',
+                implode(', ', $unknownOptions),
+                implode(', ', self::ALLOWED_OPTIONS)
+            ));
         }
 
         if (!empty($options['backoffMaxTries'])) {
@@ -97,7 +101,14 @@ class GuzzleClientFactory
                 return false;
             }
             if ($code >= 500 || $code === self::AZURE_THROTTLING_CODE || $error) {
-                $this->logger->warning(sprintf('Request failed (%s), retrying (%s of %s)', empty($error) ? $response->getBody()->getContents() : $error->getMessage(), $retries, $maxRetries));
+                $this->logger->warning(
+                    sprintf(
+                        'Request failed (%s), retrying (%s of %s)',
+                        empty($error) ? $response->getBody()->getContents() : $error->getMessage(),
+                        $retries,
+                        $maxRetries
+                    )
+                );
                 return true;
             }
             return false;
