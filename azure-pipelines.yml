@@ -1,5 +1,6 @@
 pool:
-  name: 'Default'
+  vmImage: ubuntu-latest
+pr: none
 
 steps:
 - script: docker info
@@ -70,6 +71,10 @@ steps:
     TEST_KEY_VAULT_URL: $(TEST_KEY_VAULT_URL)
     TEST_KEY_NAME: $(TEST_KEY_VAULT_URL)
     TEST_KEY_VERSION: $(TEST_KEY_VERSION)
+    # For Codeclimate:
+    GIT_COMMIT_SHA: $(Build.SourceVersion)
+    GIT_BRANCH: $(Build.SourceBranch)
+    CC_TEST_REPORTER_ID: $(CC_TEST_REPORTER_ID)
 
 - task: PublishTestResults@2
   displayName: 'Publish Test results'

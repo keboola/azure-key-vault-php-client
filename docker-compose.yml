@@ -1,0 +1,63 @@
+version: "3"
+services:
+  # for development purposes
+  tests: &tests
+    build: 
+      context: .
+      dockerfile: Dockerfile74
+    environment:
+      - TEST_TENANT_ID
+      - TEST_CLIENT_ID
+      - TEST_CLIENT_SECRET
+      - TEST_KEY_VAULT_URL
+      - TEST_KEY_NAME
+      - TEST_KEY_VERSION
+      # For Codeclimate
+      - CC_TEST_REPORTER_ID
+      - GIT_BRANCH
+      - GIT_COMMIT_SHA
+    command: ["composer", "ci"]
+
+  tests-local:
+    <<: *tests
+    volumes:
+      - ./:/code
+
+  tests56:
+    <<: *tests
+    build: 
+      context: .
+      dockerfile: Dockerfile56
+
+  tests70:
+    <<: *tests
+    build: 
+      context: .
+      dockerfile: Dockerfile70
+
+  tests71:
+    <<: *tests
+    build: 
+      context: .
+      dockerfile: Dockerfile71
+
+  tests72:
+    <<: *tests
+    build: 
+      context: .
+      dockerfile: Dockerfile72
+
+  tests73:
+    <<: *tests
+    build: 
+      context: .
+      dockerfile: Dockerfile73
+
+  tests74:
+    <<: *tests
+    build: 
+      context: .
+      dockerfile: Dockerfile74
+    command: ["/code/docker/tests-cc.sh"]
+    volumes:
+      - ./build/logs/:/code/build/logs/
