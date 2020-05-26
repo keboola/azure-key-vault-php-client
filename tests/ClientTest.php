@@ -11,7 +11,7 @@ use Keboola\AzureKeyVaultClient\Authentication\AuthenticatorFactory;
 use Keboola\AzureKeyVaultClient\Client;
 use Keboola\AzureKeyVaultClient\Exception\ClientException;
 use Keboola\AzureKeyVaultClient\GuzzleClientFactory;
-use Keboola\AzureKeyVaultClient\Requests\EncryptDecryptRequest;
+use Keboola\AzureKeyVaultClient\Requests\EncryptRequest;
 use Psr\Log\NullLogger;
 use Psr\Log\Test\TestLogger;
 
@@ -64,11 +64,12 @@ class ClientTest extends BaseTest
         /** @var GuzzleClientFactory $factory */
         $client = new Client($factory, new AuthenticatorFactory(), 'https://my-test.vault.azure.net');
         $result = $client->encrypt(
-            new EncryptDecryptRequest('RSA1_5', 'test'),
+            new EncryptRequest('RSA1_5', 'test'),
             'test-key',
             'test-version'
         );
-        self::assertNotEquals('test', $result->getValue());
+        self::assertNotEquals('test', $result->getValue(true));
+        self::assertNotEquals('test', $result->getValue(false));
         self::assertEquals('https://my-test.vault.azure.net/keys/test-key/test-version', $result->getKid());
 
         self::assertCount(3, $requestHistory);
@@ -84,7 +85,7 @@ class ClientTest extends BaseTest
         self::assertEquals('POST', $request->getMethod());
         self::assertEquals('Azure PHP Client', $request->getHeader('User-Agent')[0]);
         self::assertEquals('application/json', $request->getHeader('Content-type')[0]);
-        self::assertEquals('{"alg":"RSA1_5","value":"test"}', $request->getBody()->getContents());
+        self::assertEquals('{"alg":"RSA1_5","value":"dGVzdA"}', $request->getBody()->getContents());
     }
 
     /**
@@ -122,7 +123,7 @@ class ClientTest extends BaseTest
         $client = new Client($factory, new AuthenticatorFactory(), 'https://my-test.vault.azure.net');
         try {
             $client->encrypt(
-                new EncryptDecryptRequest('RSA1_5', 'test'),
+                new EncryptRequest('RSA1_5', 'test'),
                 'test-key',
                 'test-version'
             );
@@ -218,7 +219,7 @@ class ClientTest extends BaseTest
         $client = new Client($factory, new AuthenticatorFactory(), 'https://my-test.vault.azure.net');
         try {
             $client->encrypt(
-                new EncryptDecryptRequest('RSA1_5', 'test'),
+                new EncryptRequest('RSA1_5', 'test'),
                 'test-key',
                 'test-version'
             );

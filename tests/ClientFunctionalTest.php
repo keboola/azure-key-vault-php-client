@@ -5,7 +5,9 @@ namespace Keboola\AzureKeyVaultClient\Tests;
 use Keboola\AzureKeyVaultClient\Authentication\AuthenticatorFactory;
 use Keboola\AzureKeyVaultClient\Client;
 use Keboola\AzureKeyVaultClient\GuzzleClientFactory;
+use Keboola\AzureKeyVaultClient\Requests\DecryptRequest;
 use Keboola\AzureKeyVaultClient\Requests\EncryptDecryptRequest;
+use Keboola\AzureKeyVaultClient\Requests\EncryptRequest;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\Test\TestLogger;
 use RuntimeException;
@@ -38,12 +40,13 @@ class ClientFunctionalTest extends TestCase
             getenv('TEST_KEY_VAULT_URL')
         );
         $result = $client->encrypt(
-            new EncryptDecryptRequest('RSA1_5', 'test'),
+            new EncryptRequest('RSA1_5', 'test'),
             getenv('TEST_KEY_NAME'),
             getenv('TEST_KEY_VERSION')
         );
-        self::assertNotEquals('test', $result->getValue());
-        self::assertGreaterThan(300, strlen($result->getValue()));
+        self::assertNotEquals('test', $result->getValue(false));
+        self::assertNotEquals('test', $result->getValue(true));
+        self::assertGreaterThan(300, strlen($result->getValue(false)));
         self::assertEquals(
             getenv('TEST_KEY_VAULT_URL') . '/keys/' . getenv('TEST_KEY_NAME') .
                 '/' . getenv('TEST_KEY_VERSION'),
@@ -53,6 +56,7 @@ class ClientFunctionalTest extends TestCase
 
     public function testDecrypt()
     {
+        $payload = ')_+\\(*&^%$#@!)/"\'junk';
         $logger = new TestLogger();
         $client = new Client(
             new GuzzleClientFactory($logger),
@@ -60,17 +64,17 @@ class ClientFunctionalTest extends TestCase
             getenv('TEST_KEY_VAULT_URL')
         );
         $result = $client->encrypt(
-            new EncryptDecryptRequest('RSA1_5', 'test'),
+            new EncryptRequest(EncryptRequest::RSA_OAEP_256, $payload),
             getenv('TEST_KEY_NAME'),
             getenv('TEST_KEY_VERSION')
         );
-        self::assertNotEquals('test', $result->getValue());
+        self::assertNotEquals($payload, $result->getValue(false));
         $result = $client->decrypt(
-            new EncryptDecryptRequest('RSA1_5', $result->getValue()),
+            new DecryptRequest(DecryptRequest::RSA_OAEP_256, $result->getValue(false)),
             getenv('TEST_KEY_NAME'),
             getenv('TEST_KEY_VERSION')
         );
-        self::assertEquals('test', $result->getValue());
+        self::assertEquals($payload, $result->getValue(true));
         self::assertEquals(
             getenv('TEST_KEY_VAULT_URL') . '/keys/' . getenv('TEST_KEY_NAME') .
             '/' . getenv('TEST_KEY_VERSION'),
