@@ -13,7 +13,9 @@ use Keboola\AzureKeyVaultClient\Authentication\AuthenticatorInterface;
 use Keboola\AzureKeyVaultClient\Exception\ClientException;
 use Keboola\AzureKeyVaultClient\Requests\DecryptRequest;
 use Keboola\AzureKeyVaultClient\Requests\EncryptRequest;
+use Keboola\AzureKeyVaultClient\Requests\SetSecretRequest;
 use Keboola\AzureKeyVaultClient\Responses\KeyOperationResult;
+use Keboola\AzureKeyVaultClient\Responses\SecretBundle;
 use Psr\Http\Message\RequestInterface;
 use Psr\Log\LoggerInterface;
 
@@ -125,5 +127,35 @@ class Client
             \GuzzleHttp\json_encode($encryptRequest->getArray())
         );
         return new KeyOperationResult($this->sendRequest($request));
+    }
+
+    /**
+     * @param SetSecretRequest $setSecretRequest
+     * @param string $secretName
+     * @return SecretBundle
+     */
+    public function setSecret(SetSecretRequest $setSecretRequest, $secretName)
+    {
+        $request = new Request(
+            'PUT',
+            sprintf('secrets/%s?api-version=%s', $secretName, self::API_VERSION),
+            [],
+            \GuzzleHttp\json_encode($setSecretRequest->getArray())
+        );
+        return new SecretBundle($this->sendRequest($request));
+    }
+
+    /**
+     * @param string $secretName
+     * @param string $secretVersion
+     * @return SecretBundle
+     */
+    public function getSecret($secretName, $secretVersion)
+    {
+        $request = new Request(
+            'GET',
+            sprintf('secrets/%s/%s?api-version=%s', $secretName, $secretVersion, self::API_VERSION)
+        );
+        return new SecretBundle($this->sendRequest($request));
     }
 }

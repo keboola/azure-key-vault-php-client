@@ -9,6 +9,7 @@ class KeyOperationResult
 {
     /** @var string */
     private $kid;
+
     /** @var string */
     private $value;
 

@@ -49,31 +49,4 @@ class EncryptDecryptRequestTest extends TestCase
         self::expectExceptionMessage('Invalid algorithm "bar"');
         new DecryptRequest('bar', 'foo');
     }
-
-    public function testInvalidEnvironmentSettingsMissingTenant()
-    {
-        putenv('AZURE_TENANT_ID=');
-        self::expectException(ClientException::class);
-        self::expectExceptionMessage('No suitable authentication method found.');
-        $authenticationFactory = new AuthenticatorFactory();
-        $authenticationFactory->getAuthenticator(new GuzzleClientFactory(new NullLogger()));
-    }
-
-    public function testInvalidEnvironmentSettingsMissingClient()
-    {
-        putenv('AZURE_CLIENT_ID=');
-        self::expectException(ClientException::class);
-        self::expectExceptionMessage('No suitable authentication method found.');
-        $authenticationFactory = new AuthenticatorFactory();
-        $authenticationFactory->getAuthenticator(new GuzzleClientFactory(new NullLogger()));
-    }
-
-    public function testInvalidEnvironmentSettingsMissingSecret()
-    {
-        putenv('AZURE_CLIENT_SECRET=');
-        self::expectException(ClientException::class);
-        self::expectExceptionMessage('No suitable authentication method found.');
-        $authenticationFactory = new AuthenticatorFactory();
-        $authenticationFactory->getAuthenticator(new GuzzleClientFactory(new NullLogger()));
-    }
 }
