@@ -6,11 +6,11 @@ use Keboola\AzureKeyVaultClient\Authentication\AuthenticatorFactory;
 use Keboola\AzureKeyVaultClient\Client;
 use Keboola\AzureKeyVaultClient\GuzzleClientFactory;
 use Keboola\AzureKeyVaultClient\Requests\DecryptRequest;
-use Keboola\AzureKeyVaultClient\Requests\EncryptDecryptRequest;
 use Keboola\AzureKeyVaultClient\Requests\EncryptRequest;
 use Keboola\AzureKeyVaultClient\Requests\SecretAttributes;
 use Keboola\AzureKeyVaultClient\Requests\SetSecretRequest;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\NullLogger;
 use Psr\Log\Test\TestLogger;
 use RuntimeException;
 
@@ -31,6 +31,19 @@ class ClientFunctionalTest extends TestCase
         putenv('AZURE_TENANT_ID=' . getenv('TEST_TENANT_ID'));
         putenv('AZURE_CLIENT_ID=' . getenv('TEST_CLIENT_ID'));
         putenv('AZURE_CLIENT_SECRET=' . getenv('TEST_CLIENT_SECRET'));
+        $this->clearSecrets();
+    }
+
+    private function clearSecrets()
+    {
+        $client = new Client(
+            new GuzzleClientFactory(new NullLogger()),
+            new AuthenticatorFactory(),
+            getenv('TEST_KEY_VAULT_URL')
+        );
+        foreach ($client->getAllSecrets() as $secret) {
+            $client->deleteSecret($secret->getName());
+        }
     }
 
     public function testEncryptDecrypt()
@@ -86,5 +99,24 @@ class ClientFunctionalTest extends TestCase
         $getResult = $client->getSecret($result->getName(), $result->getVersion());
         self::assertEquals($payload, $getResult->getValue());
         self::assertEquals(['a' => 'b', 'c' => 'd'], $getResult->getTags());
+    }
+
+    public function testGetSecrets()
+    {
+        $client = new Client(
+            new GuzzleClientFactory(new NullLogger()),
+            new AuthenticatorFactory(),
+            getenv('TEST_KEY_VAULT_URL')
+        );
+        $client->setSecret(new SetSecretRequest('test1', new SecretAttributes()), uniqid('test-secret1'));
+        $client->setSecret(new SetSecretRequest('test2', new SecretAttributes()), uniqid('test-secret2'));
+        $client->setSecret(new SetSecretRequest('test3', new SecretAttributes()), uniqid('test-secret3'));
+        $secrets = $client->getAllSecrets(2);
+        self::assertCount(3, $secrets);
+        $names = [];
+        foreach ($secrets as $secret) {
+            $names[] = substr($secret->getName(), 0, 12);
+        }
+        self::assertEquals(['test-secret1', 'test-secret2', 'test-secret3'], $names);
     }
 }

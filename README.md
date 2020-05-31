@@ -73,7 +73,7 @@ Get ID of a group to which the current user belongs (e.g. "Developers"):
 
 Deploy the key vault, provide tentant ID, service principal ID and group ID from the previous commands:
 
-	az deployment group create --resource-group testing-azure-key-vault-php-client --template-file template.json --parameters vault_name=testing-key-vault-client tenant_id=9b85ee6f-xxxxxxxxxxxxxxxxxxxxxxxxxxx service_principal_object_id=7f7a8a4c-xxxxxxxxxxxxxxxxxxxxxxxxxxx group_object_id=a1e8da73-xxxxxxxxxxxxxxxxxxxxxxxxxxx
+	az deployment group create --resource-group testing-azure-key-vault-php-client --template-file arm-template.json --parameters vault_name=testing-key-vault-client tenant_id=9b85ee6f-xxxxxxxxxxxxxxxxxxxxxxxxxxx service_principal_object_id=7f7a8a4c-xxxxxxxxxxxxxxxxxxxxxxxxxxx group_object_id=a1e8da73-xxxxxxxxxxxxxxxxxxxxxxxxxxx
 
 Create key:
 

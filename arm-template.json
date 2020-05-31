@@ -37,7 +37,13 @@
                                 "Get",
                                 "Decrypt",
                                 "Encrypt"
-                            ]
+                            ],
+                            "secrets": [
+                                "Get",
+                                "List",
+                                "Set",
+                                "Delete"
+                            ]                            
                         }
                     },
                     {
@@ -55,7 +61,12 @@
                                 "Backup",
                                 "Restore"
                             ],
-                            "secrets": [],
+                            "secrets": [
+                                "Get",
+                                "List",
+                                "Set",
+                                "Delete"                            	
+                            ],
                             "certificates": []
                         }
                     }                    

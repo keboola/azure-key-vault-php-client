@@ -14,14 +14,18 @@ use Keboola\AzureKeyVaultClient\Exception\ClientException;
 use Keboola\AzureKeyVaultClient\Requests\DecryptRequest;
 use Keboola\AzureKeyVaultClient\Requests\EncryptRequest;
 use Keboola\AzureKeyVaultClient\Requests\SetSecretRequest;
+use Keboola\AzureKeyVaultClient\Responses\DeletedSecretBundle;
 use Keboola\AzureKeyVaultClient\Responses\KeyOperationResult;
 use Keboola\AzureKeyVaultClient\Responses\SecretBundle;
+use Keboola\AzureKeyVaultClient\Responses\SecretItem;
+use Keboola\AzureKeyVaultClient\Responses\SecretListResult;
 use Psr\Http\Message\RequestInterface;
 use Psr\Log\LoggerInterface;
 
 class Client
 {
     const API_VERSION = '7.0';
+    const DEFAULT_PAGE_SIZE = 25;
 
     /** @var GuzzleClient */
     private $guzzle;
@@ -157,5 +161,50 @@ class Client
             sprintf('secrets/%s/%s?api-version=%s', $secretName, $secretVersion, self::API_VERSION)
         );
         return new SecretBundle($this->sendRequest($request));
+    }
+
+    /**
+     * @param int $maxResults
+     * @return SecretListResult
+     */
+    public function getSecrets($maxResults = self::DEFAULT_PAGE_SIZE)
+    {
+        $request = new Request(
+            'GET',
+            sprintf('secrets/?maxresults=%s&api-version=%s', $maxResults, self::API_VERSION)
+        );
+        return new SecretListResult($this->sendRequest($request));
+    }
+
+    /**
+     * @param int $pageSize
+     * @return SecretItem[]
+     */
+    public function getAllSecrets($pageSize = self::DEFAULT_PAGE_SIZE)
+    {
+        $listResult = $this->getSecrets($pageSize);
+        $items = $listResult->getValue();
+        while ($listResult->getNextLink()) {
+            $request = new Request(
+                'GET',
+                $listResult->getNextLink()
+            );
+            $listResult = new SecretListResult($this->sendRequest($request));
+            $items = array_merge($items, $listResult->getValue());
+        }
+        return $items;
+    }
+
+    /**
+     * @param $secretName
+     * @return DeletedSecretBundle
+     */
+    public function deleteSecret($secretName)
+    {
+        $request = new Request(
+            'DELETE',
+            sprintf('secrets/%s?api-version=%s', $secretName, self::API_VERSION)
+        );
+        return new DeletedSecretBundle($this->sendRequest($request));
     }
 }
