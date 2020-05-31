@@ -37,10 +37,17 @@ class SecretAttributes
      * @param string $recoveryLevel
      * @param string $updated
      */
-    public function __construct($created = null, $enabled = null, $exp = null, $nbf = null, $recoveryLevel = null, $updated = null)
-    {
+    public function __construct(
+        $created = null,
+        $enabled = null,
+        $exp = null,
+        $nbf = null,
+        $recoveryLevel = null,
+        $updated = null
+    ) {
         if (!is_null($recoveryLevel) && !in_array(
-            $recoveryLevel, [
+            $recoveryLevel,
+            [
                 self::RECOVERY_LEVEL_PURGEABLE,
                 self::RECOVERY_LEVEL_RECOVERABLE,
                 self::RECOVERY_LEVEL_RECOVERABLE_PROTECTED_SUBSCRIPTION,
