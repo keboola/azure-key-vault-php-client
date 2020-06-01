@@ -30,8 +30,8 @@
         "ext-json": "*",
         "guzzlehttp/guzzle": "^6.3",
         "psr/log": "^1.1",
-        "symfony/config": "^3.4|^4.2",
-        "symfony/validator": "^3.4|^4.2"
+        "symfony/config": "^3.4|^4.2|^5.0",
+        "symfony/validator": "^3.4|^4.2|^5.0"
     },
     "require-dev": {
         "jakub-onderka/php-parallel-lint": "^1.0",
