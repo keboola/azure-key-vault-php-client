@@ -11,7 +11,8 @@ use GuzzleHttp\Psr7\Response;
 use Keboola\AzureKeyVaultClient\Authentication\AuthenticatorFactory;
 use Keboola\AzureKeyVaultClient\Authentication\AuthenticatorInterface;
 use Keboola\AzureKeyVaultClient\Exception\ClientException;
-use Keboola\AzureKeyVaultClient\Requests\EncryptDecryptRequest;
+use Keboola\AzureKeyVaultClient\Requests\DecryptRequest;
+use Keboola\AzureKeyVaultClient\Requests\EncryptRequest;
 use Keboola\AzureKeyVaultClient\Responses\KeyOperationResult;
 use Psr\Http\Message\RequestInterface;
 use Psr\Log\LoggerInterface;
@@ -93,12 +94,12 @@ class Client
     }
 
     /**
-     * @param EncryptDecryptRequest $encryptRequest
+     * @param EncryptRequest $encryptRequest
      * @param $keyName
      * @param $keyVersion
      * @return KeyOperationResult
      */
-    public function encrypt(EncryptDecryptRequest $encryptRequest, $keyName, $keyVersion)
+    public function encrypt(EncryptRequest $encryptRequest, $keyName, $keyVersion)
     {
         $request = new Request(
             'POST',
@@ -110,12 +111,12 @@ class Client
     }
 
     /**
-     * @param EncryptDecryptRequest $encryptRequest
+     * @param DecryptRequest $encryptRequest
      * @param $keyName
      * @param $keyVersion
      * @return KeyOperationResult
      */
-    public function decrypt(EncryptDecryptRequest $encryptRequest, $keyName, $keyVersion)
+    public function decrypt(DecryptRequest $encryptRequest, $keyName, $keyVersion)
     {
         $request = new Request(
             'POST',

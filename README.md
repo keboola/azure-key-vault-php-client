@@ -21,11 +21,11 @@ Create client instance and encrypt data:
 $client = new Client(
     new GuzzleClientFactory($logger),
     new AuthenticatorFactory(),
-    https://my-test-vault.vault.azure.net
+    'https://my-test-vault.vault.azure.net'
 );
 
 $result = $client->encrypt(
-    new EncryptDecryptRequest('RSA1_5', 'test'),
+    new EncryptRequest(EncryptRequest::RSA_OAEP_256, 'test'),
     'my-test-key',
     'abcabcabcabcabcabcabcabcabcabcab'
 );

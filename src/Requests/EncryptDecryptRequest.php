@@ -4,16 +4,16 @@ namespace Keboola\AzureKeyVaultClient\Requests;
 
 use Keboola\AzureKeyVaultClient\Exception\ClientException;
 
-class EncryptDecryptRequest
+abstract class EncryptDecryptRequest
 {
     const RSA_OAEP = 'RSA-OAEP';
     const RSA_OAEP_256 = 'RSA-OAEP-256';
     const RSA_1_5 = 'RSA1_5';
 
     /** @var string */
-    private $alg;
+    protected $alg;
     /** @var string */
-    private $value;
+    protected $value;
 
     /**
      * @param string $alg
@@ -28,11 +28,5 @@ class EncryptDecryptRequest
         $this->value = (string) $value;
     }
 
-    public function getArray()
-    {
-        return [
-            'alg' => $this->alg,
-            'value' => $this->value,
-        ];
-    }
+    abstract public function getArray();
 }

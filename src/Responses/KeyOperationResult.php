@@ -2,6 +2,7 @@
 
 namespace Keboola\AzureKeyVaultClient\Responses;
 
+use Keboola\AzureKeyVaultClient\Base64UrlEncoder;
 use Keboola\AzureKeyVaultClient\Exception\InvalidResponseException;
 
 class KeyOperationResult
@@ -24,11 +25,16 @@ class KeyOperationResult
     }
 
     /**
+     * @param bool $decode
      * @return string
      */
-    public function getValue()
+    public function getValue($decode)
     {
-        return $this->value;
+        if ($decode) {
+            return Base64UrlEncoder::decode($this->value);
+        } else {
+            return $this->value;
+        }
     }
 
     /**
