@@ -29,7 +29,10 @@ class ManagedCredentialsAuthenticator implements AuthenticatorInterface
         try {
             $client = $this->clientFactory->getClient(self::INSTANCE_METADATA_SERVICE_ENDPOINT);
             $response = $client->get(
-                sprintf('/metadata/identity/oauth2/token?api-version=%s&format=text&resource=https://vault.azure.net', self::API_VERSION),
+                sprintf(
+		    '/metadata/identity/oauth2/token?api-version=%s&format=text&resource=https://vault.azure.net', 
+		    self::API_VERSION
+		),
                 [
                     'headers' => [
                         'Metadata' => 'true'
@@ -65,5 +68,6 @@ class ManagedCredentialsAuthenticator implements AuthenticatorInterface
             );
 	} catch (GuzzleException $e) {
 	    throw new ClientException('Instance metadata service not available: ' . $e->getMessage(), 0, $e);
+	}
     }
 }
