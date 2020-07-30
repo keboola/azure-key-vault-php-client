@@ -20,7 +20,10 @@ class AuthenticationFactoryTest extends BaseTest
     public function testValidClientEnvironmentSettings()
     {
         $authenticationFactory = new AuthenticatorFactory();
-        $authenticator = $authenticationFactory->getAuthenticator(new GuzzleClientFactory(new NullLogger()));
+        $authenticator = $authenticationFactory->getAuthenticator(
+            new GuzzleClientFactory(new NullLogger()),
+            'https://vault.azure.net'
+        );
         self::assertInstanceOf(ClientCredentialsEnvironmentAuthenticator::class, $authenticator);
     }
 
@@ -30,7 +33,10 @@ class AuthenticationFactoryTest extends BaseTest
         putenv('AZURE_TENANT_ID=');
         try {
             $authenticationFactory = new AuthenticatorFactory();
-            $authenticationFactory->getAuthenticator(new GuzzleClientFactory($logger));
+            $authenticationFactory->getAuthenticator(
+                new GuzzleClientFactory($logger),
+            'https://vault.azure.net'
+            );
             self::fail('Must throw exception');
         } catch (ClientException $e) {
             self::assertContains('No suitable authentication method found.', $e->getMessage());
@@ -45,7 +51,10 @@ class AuthenticationFactoryTest extends BaseTest
         self::expectException(ClientException::class);
         self::expectExceptionMessage('No suitable authentication method found.');
         $authenticationFactory = new AuthenticatorFactory();
-        $authenticationFactory->getAuthenticator(new GuzzleClientFactory(new NullLogger()));
+        $authenticationFactory->getAuthenticator(
+            new GuzzleClientFactory(new NullLogger()),
+            'https://vault.azure.net'
+        );
     }
 
     public function testInvalidClientEnvironmentSettingsMissingSecret()
@@ -54,7 +63,10 @@ class AuthenticationFactoryTest extends BaseTest
         self::expectException(ClientException::class);
         self::expectExceptionMessage('No suitable authentication method found.');
         $authenticationFactory = new AuthenticatorFactory();
-        $authenticationFactory->getAuthenticator(new GuzzleClientFactory(new NullLogger()));
+        $authenticationFactory->getAuthenticator(
+            new GuzzleClientFactory(new NullLogger()),
+        'https://vault.azure.net'
+        );
     }
 
     public function testValidManagedSettings()
@@ -77,7 +89,7 @@ class AuthenticationFactoryTest extends BaseTest
         /** @var GuzzleClientFactory $factory */
 
         $authenticationFactory = new AuthenticatorFactory();
-        $authenticator = $authenticationFactory->getAuthenticator($factory);
+        $authenticator = $authenticationFactory->getAuthenticator($factory, 'https://vault.azure.net');
         self::assertInstanceOf(ManagedCredentialsAuthenticator::class, $authenticator);
         self::assertCount(1, $requestHistory);
     }

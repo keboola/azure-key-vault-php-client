@@ -47,7 +47,7 @@ class ManagedCredentialsAuthenticatorTest extends TestCase
         $factory->method('getClient')
             ->willReturn($client);
         /** @var GuzzleClientFactory $factory */
-        $auth = new ManagedCredentialsAuthenticator($factory);
+        $auth = new ManagedCredentialsAuthenticator($factory, 'https://vault.azure.net');
         $token = $auth->getAuthenticationToken();
         self::assertEquals('ey....ey', $token);
         self::assertCount(1, $requestHistory);
@@ -86,7 +86,7 @@ class ManagedCredentialsAuthenticatorTest extends TestCase
         $factory->method('getClient')
             ->willReturn($client);
         /** @var GuzzleClientFactory $factory */
-        $auth = new ManagedCredentialsAuthenticator($factory);
+        $auth = new ManagedCredentialsAuthenticator($factory, 'https://vault.azure.net');
         self::expectException(ClientException::class);
         self::expectExceptionMessage('Access token not provided in response: {"foo":"bar"}');
         $auth->getAuthenticationToken();
@@ -118,7 +118,7 @@ class ManagedCredentialsAuthenticatorTest extends TestCase
         $factory->method('getClient')
             ->willReturn($client);
         /** @var GuzzleClientFactory $factory */
-        $auth = new ManagedCredentialsAuthenticator($factory);
+        $auth = new ManagedCredentialsAuthenticator($factory, 'https://vault.azure.net');
         self::expectException(ClientException::class);
         self::expectExceptionMessage('Failed to get authentication token: json_decode error: Syntax error');
         $auth->getAuthenticationToken();
@@ -148,7 +148,7 @@ class ManagedCredentialsAuthenticatorTest extends TestCase
         $factory->method('getClient')
             ->willReturn($client);
         /** @var GuzzleClientFactory $factory */
-        $auth = new ManagedCredentialsAuthenticator($factory);
+        $auth = new ManagedCredentialsAuthenticator($factory, 'https://vault.azure.net');
         $auth->checkUsability();
         self::assertCount(1, $requestHistory);
         /** @var Request $request */
@@ -189,7 +189,7 @@ class ManagedCredentialsAuthenticatorTest extends TestCase
         $factory->method('getClient')
             ->willReturn($client);
         /** @var GuzzleClientFactory $factory */
-        $auth = new ManagedCredentialsAuthenticator($factory);
+        $auth = new ManagedCredentialsAuthenticator($factory, 'https://vault.azure.net');
         self::expectException('Instance metadata service not available: Server error: `GET https://example.com/metadata?api-version=2019-11-01&format=text` resulted in a `500 Internal Server Error`');
         self::expectException(ClientException::class);
         $auth->checkUsability();

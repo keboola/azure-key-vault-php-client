@@ -54,7 +54,7 @@ class Client
         ));
         $this->logger = $clientFactory->getLogger();
         $this->guzzle = $clientFactory->getClient($vaultBaseUrl, ['handler' => $handlerStack]);
-        $this->authenticator = $authenticatorFactory->getAuthenticator($clientFactory);
+        $this->authenticator = $authenticatorFactory->getAuthenticator($clientFactory, 'https://vault.azure.net');
     }
 
     private function sendRequest(Request $request)

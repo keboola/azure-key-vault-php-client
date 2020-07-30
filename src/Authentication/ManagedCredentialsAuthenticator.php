@@ -14,14 +14,17 @@ class ManagedCredentialsAuthenticator implements AuthenticatorInterface
     private $clientFactory;
     /** @var LoggerInterface */
     private $logger;
+    /** @var string */
+    private $resource;
 
     const INSTANCE_METADATA_SERVICE_ENDPOINT = 'http://169.254.169.254/';
     const API_VERSION = '2019-11-01';
 
-    public function __construct(GuzzleClientFactory $clientFactory)
+    public function __construct(GuzzleClientFactory $clientFactory, $resource)
     {
         $this->logger = $clientFactory->getLogger();
         $this->clientFactory = $clientFactory;
+        $this->resource = $resource;
     }
 
     public function getAuthenticationToken()
@@ -30,8 +33,9 @@ class ManagedCredentialsAuthenticator implements AuthenticatorInterface
             $client = $this->clientFactory->getClient(self::INSTANCE_METADATA_SERVICE_ENDPOINT);
             $response = $client->get(
                 sprintf(
-                    '/metadata/identity/oauth2/token?api-version=%s&format=text&resource=https://vault.azure.net',
-                    self::API_VERSION
+                    '/metadata/identity/oauth2/token?api-version=%s&format=text&resource=%s',
+                    self::API_VERSION,
+                    $this->resource
                 ),
                 [
                     'headers' => [

@@ -45,12 +45,4 @@ class ArmMetadata
     {
         return $this->loginEndpoint;
     }
-
-    /**
-     * @return string
-     */
-    public function getKeyVaultDns()
-    {
-        return $this->keyVaultDns;
-    }
 }

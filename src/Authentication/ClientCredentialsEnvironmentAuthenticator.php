@@ -38,11 +38,14 @@ class ClientCredentialsEnvironmentAuthenticator implements AuthenticatorInterfac
     private $armUrl;
     /** @var string */
     private $cloudName;
+    /** @var string */
+    private $resource;
 
-    public function __construct(GuzzleClientFactory $clientFactory)
+    public function __construct(GuzzleClientFactory $clientFactory, $resource)
     {
         $this->logger = $clientFactory->getLogger();
         $this->armUrl = (string)getenv(self::ENV_AZURE_AD_RESOURCE);
+        $this->resource = $resource;
         if (!$this->armUrl) {
             $this->armUrl = self::DEFAULT_ARM_URL;
             $this->logger->debug(
@@ -83,8 +86,7 @@ class ClientCredentialsEnvironmentAuthenticator implements AuthenticatorInterfac
     {
         $metadata = $this->getMetadata($this->armUrl);
         $metadata = $this->processInstanceMetadata($metadata, $this->cloudName);
-        $keyVaultUrl = 'https://' . $metadata->getKeyVaultDns();
-        return $this->authenticate($metadata->getAuthenticationLoginEndpoint(), $keyVaultUrl);
+        return $this->authenticate($metadata->getAuthenticationLoginEndpoint(), $this->resource);
     }
 
     public function checkUsability()

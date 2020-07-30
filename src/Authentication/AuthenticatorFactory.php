@@ -13,7 +13,7 @@ class AuthenticatorFactory
      * @param GuzzleClientFactory $clientFactory
      * @return AuthenticatorInterface
      */
-    public function getAuthenticator(GuzzleClientFactory $clientFactory)
+    public function getAuthenticator(GuzzleClientFactory $clientFactory, $resource)
     {
         $authenticators = [
             ClientCredentialsEnvironmentAuthenticator::class,
@@ -21,7 +21,7 @@ class AuthenticatorFactory
         ];
         foreach ($authenticators as $authenticatorClass) {
             /** @var AuthenticatorInterface $authenticator */
-            $authenticator = new $authenticatorClass($clientFactory);
+            $authenticator = new $authenticatorClass($clientFactory, $resource);
             try {
                 $authenticator->checkUsability();
                 return $authenticator;
