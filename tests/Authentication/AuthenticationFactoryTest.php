@@ -28,7 +28,6 @@ class AuthenticationFactoryTest extends BaseTest
     {
         $logger = new TestLogger();
         putenv('AZURE_TENANT_ID=');
-        passthru('env');
         try {
             $authenticationFactory = new AuthenticatorFactory();
             $authenticationFactory->getAuthenticator(new GuzzleClientFactory($logger));
@@ -36,7 +35,6 @@ class AuthenticationFactoryTest extends BaseTest
         } catch (ClientException $e) {
             self::assertContains('No suitable authentication method found.', $e->getMessage());
         }
-        var_dump($e);
         self::assertTrue($logger->hasDebugThatContains('Keboola\AzureKeyVaultClient\Authentication\ClientCredentialsEnvironmentAuthenticator is not usable.'));
         self::assertTrue($logger->hasDebugThatContains('Keboola\AzureKeyVaultClient\Authentication\ManagedCredentialsAuthenticator is not usable.'));
     }
