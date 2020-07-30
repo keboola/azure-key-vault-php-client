@@ -16,20 +16,39 @@ use Psr\Log\Test\TestLogger;
 
 class ClientCredentialsEnvironmentAuthenticatorTest extends BaseTest
 {
-    public function testCheckUsabilityFailure()
+    public function testCheckUsabilityFailureMissingTenant()
     {
         $authenticator = new ClientCredentialsEnvironmentAuthenticator(
             new GuzzleClientFactory(new NullLogger()),
             'https://vault.azure.net'
         );
         putenv('AZURE_TENANT_ID=');
+        self::expectException(ClientException::class);
+        self::expectExceptionMessage('Environment variable "AZURE_TENANT_ID" is not set.');
+        $authenticator->checkUsability();
+    }
+
+    public function testCheckUsabilityFailureMissingClient()
+    {
+        $authenticator = new ClientCredentialsEnvironmentAuthenticator(
+            new GuzzleClientFactory(new NullLogger()),
+            'https://vault.azure.net'
+        );
         putenv('AZURE_CLIENT_ID=');
+        self::expectException(ClientException::class);
+        self::expectExceptionMessage('Environment variable "AZURE_CLIENT_ID" is not set.');
+        $authenticator->checkUsability();
+    }
+
+    public function testCheckUsabilityFailureMissingSecret()
+    {
+        $authenticator = new ClientCredentialsEnvironmentAuthenticator(
+            new GuzzleClientFactory(new NullLogger()),
+            'https://vault.azure.net'
+        );
         putenv('AZURE_CLIENT_SECRET=');
         self::expectException(ClientException::class);
-        self::expectExceptionMessage(
-            'Environment variable "AZURE_TENANT_ID" is not set. Environment variable "AZURE_CLIENT_ID" is not set. ' .
-            'Environment variable "AZURE_CLIENT_SECRET" is not set.'
-        );
+        self::expectExceptionMessage('Environment variable "AZURE_CLIENT_SECRET" is not set.');
         $authenticator->checkUsability();
     }
 

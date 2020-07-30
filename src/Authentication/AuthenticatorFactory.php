@@ -26,7 +26,7 @@ class AuthenticatorFactory
                 $authenticator->checkUsability();
                 return $authenticator;
             } catch (ClientException $e) {
-                $clientFactory->getLogger()->debug($authenticatorClass . ' is not usable.');
+                $clientFactory->getLogger()->debug($authenticatorClass . ' is not usable: ' . $e->getMessage());
             }
         }
         throw new ClientException('No suitable authentication method found.');

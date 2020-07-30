@@ -2,9 +2,11 @@
 
 namespace Keboola\AzureKeyVaultClient\Tests\Authentication;
 
+use GuzzleHttp\Client;
 use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Middleware;
+use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Response;
 use Keboola\AzureKeyVaultClient\Authentication\AuthenticatorFactory;
 use Keboola\AzureKeyVaultClient\Authentication\ClientCredentialsEnvironmentAuthenticator;
@@ -27,46 +29,40 @@ class AuthenticationFactoryTest extends BaseTest
         self::assertInstanceOf(ClientCredentialsEnvironmentAuthenticator::class, $authenticator);
     }
 
-    public function testInvalidClientEnvironmentSettingsMissingTenant()
+    public function testNoAuthenticationMethod()
     {
         $logger = new TestLogger();
+        $mock = self::getMockBuilder(Client::class)
+            ->setMethods(['get'])
+            ->getMock();
+        /** @noinspection PhpParamsInspection */
+        $mock->method('get')
+            ->with('/metadata?api-version=2019-11-01&format=text')
+            ->willThrowException(new \GuzzleHttp\Exception\ClientException('boo', new Request('GET', '/foo/')));
+        $factoryMock = self::getMockBuilder(GuzzleClientFactory::class)
+            ->setMethods(['getClient'])
+            ->setConstructorArgs([$logger])
+            ->getMock();
+        $factoryMock->method('getClient')
+            ->willReturn($mock);
+
         putenv('AZURE_TENANT_ID=');
         try {
             $authenticationFactory = new AuthenticatorFactory();
-            $authenticationFactory->getAuthenticator(
-                new GuzzleClientFactory($logger),
-            'https://vault.azure.net'
-            );
+            /** @noinspection PhpParamsInspection */
+            $authenticationFactory->getAuthenticator($factoryMock, 'https://vault.azure.net');
             self::fail('Must throw exception');
         } catch (ClientException $e) {
             self::assertContains('No suitable authentication method found.', $e->getMessage());
         }
-        self::assertTrue($logger->hasDebugThatContains('Keboola\AzureKeyVaultClient\Authentication\ClientCredentialsEnvironmentAuthenticator is not usable.'));
-        self::assertTrue($logger->hasDebugThatContains('Keboola\AzureKeyVaultClient\Authentication\ManagedCredentialsAuthenticator is not usable.'));
-    }
-
-    public function testInvalidClientEnvironmentSettingsMissingClient()
-    {
-        putenv('AZURE_CLIENT_ID=');
-        self::expectException(ClientException::class);
-        self::expectExceptionMessage('No suitable authentication method found.');
-        $authenticationFactory = new AuthenticatorFactory();
-        $authenticationFactory->getAuthenticator(
-            new GuzzleClientFactory(new NullLogger()),
-            'https://vault.azure.net'
-        );
-    }
-
-    public function testInvalidClientEnvironmentSettingsMissingSecret()
-    {
-        putenv('AZURE_CLIENT_SECRET=');
-        self::expectException(ClientException::class);
-        self::expectExceptionMessage('No suitable authentication method found.');
-        $authenticationFactory = new AuthenticatorFactory();
-        $authenticationFactory->getAuthenticator(
-            new GuzzleClientFactory(new NullLogger()),
-        'https://vault.azure.net'
-        );
+        self::assertTrue($logger->hasDebugThatContains(
+            'Keboola\AzureKeyVaultClient\Authentication\ClientCredentialsEnvironmentAuthenticator is not usable: ' .
+            'Environment variable "AZURE_TENANT_ID" is not set.'
+        ));
+        self::assertTrue($logger->hasDebugThatContains(
+            'Keboola\AzureKeyVaultClient\Authentication\ManagedCredentialsAuthenticator is not usable: ' .
+            'Instance metadata service not available: boo'
+        ));
     }
 
     public function testValidManagedSettings()
