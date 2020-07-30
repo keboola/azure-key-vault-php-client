@@ -52,7 +52,7 @@ class ManagedCredentialsAuthenticator implements AuthenticatorInterface
         try {
             $client = $this->clientFactory->getClient(
                 self::INSTANCE_METADATA_SERVICE_ENDPOINT,
-                ['backoffMaxRetries' => 1]
+                ['backoffMaxTries' => 1]
             );
             $client->get(sprintf('/metadata?api-version=%s&format=text', self::API_VERSION));
         } catch (GuzzleException $e) {
