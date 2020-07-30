@@ -53,9 +53,10 @@ class ManagedCredentialsAuthenticatorTest extends TestCase
         self::assertCount(1, $requestHistory);
         /** @var Request $request */
         $request = $requestHistory[0]['request'];
-        self::assertEquals('https://example.com/metadata/identity/oauth2/token?api-version=2019-11-01&format=text', $request->getUri()->__toString());
+        self::assertEquals('https://example.com/metadata/identity/oauth2/token?api-version=2019-11-01&format=text&resource=https://vault.azure.net', $request->getUri()->__toString());
         self::assertEquals('GET', $request->getMethod());
         self::assertEquals('Azure PHP Client', $request->getHeader('User-Agent')[0]);
+        self::assertEquals('true', $request->getHeader('Metadata')[0]);
         self::assertEquals('application/json', $request->getHeader('Content-type')[0]);
     }
 
@@ -155,6 +156,7 @@ class ManagedCredentialsAuthenticatorTest extends TestCase
         self::assertEquals('https://example.com/metadata?api-version=2019-11-01&format=text', $request->getUri()->__toString());
         self::assertEquals('GET', $request->getMethod());
         self::assertEquals('Azure PHP Client', $request->getHeader('User-Agent')[0]);
+        self::assertEquals('true', $request->getHeader('Metadata')[0]);
         self::assertEquals('application/json', $request->getHeader('Content-type')[0]);
     }
 
