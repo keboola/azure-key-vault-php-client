@@ -12,7 +12,6 @@ class ArmMetadataTest extends BaseTest
     {
         $metadata = new ArmMetadata($this->getSampleArmMetadata()[0]);
         self::assertEquals('https://login.windows.net/', $metadata->getAuthenticationLoginEndpoint());
-        self::assertEquals('vault.azure.net', $metadata->getKeyVaultDns());
     }
 
     /**

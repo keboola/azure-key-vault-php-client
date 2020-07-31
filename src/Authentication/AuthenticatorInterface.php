@@ -6,7 +6,7 @@ use Keboola\AzureKeyVaultClient\GuzzleClientFactory;
 
 interface AuthenticatorInterface
 {
-    public function __construct(GuzzleClientFactory $clientFactory);
+    public function __construct(GuzzleClientFactory $clientFactory, $resource);
 
     /**
      * @return string

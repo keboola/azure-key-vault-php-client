@@ -13,7 +13,7 @@ class AuthenticatorFactory
      * @param GuzzleClientFactory $clientFactory
      * @return AuthenticatorInterface
      */
-    public function getAuthenticator(GuzzleClientFactory $clientFactory)
+    public function getAuthenticator(GuzzleClientFactory $clientFactory, $resource)
     {
         $authenticators = [
             ClientCredentialsEnvironmentAuthenticator::class,
@@ -21,12 +21,12 @@ class AuthenticatorFactory
         ];
         foreach ($authenticators as $authenticatorClass) {
             /** @var AuthenticatorInterface $authenticator */
-            $authenticator = new $authenticatorClass($clientFactory);
+            $authenticator = new $authenticatorClass($clientFactory, $resource);
             try {
                 $authenticator->checkUsability();
                 return $authenticator;
             } catch (ClientException $e) {
-                $clientFactory->getLogger()->debug($authenticatorClass . ' is not usable.');
+                $clientFactory->getLogger()->debug($authenticatorClass . ' is not usable: ' . $e->getMessage());
             }
         }
         throw new ClientException('No suitable authentication method found.');

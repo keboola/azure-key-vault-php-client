@@ -16,24 +16,49 @@ use Psr\Log\Test\TestLogger;
 
 class ClientCredentialsEnvironmentAuthenticatorTest extends BaseTest
 {
-    public function testCheckUsabilityFailure()
+    public function testCheckUsabilityFailureMissingTenant()
     {
-        $authenticator = new ClientCredentialsEnvironmentAuthenticator(new GuzzleClientFactory(new NullLogger()));
+        $authenticator = new ClientCredentialsEnvironmentAuthenticator(
+            new GuzzleClientFactory(new NullLogger()),
+            'https://vault.azure.net'
+        );
         putenv('AZURE_TENANT_ID=');
+        self::expectException(ClientException::class);
+        self::expectExceptionMessage('Environment variable "AZURE_TENANT_ID" is not set.');
+        $authenticator->checkUsability();
+    }
+
+    public function testCheckUsabilityFailureMissingClient()
+    {
+        $authenticator = new ClientCredentialsEnvironmentAuthenticator(
+            new GuzzleClientFactory(new NullLogger()),
+            'https://vault.azure.net'
+        );
         putenv('AZURE_CLIENT_ID=');
+        self::expectException(ClientException::class);
+        self::expectExceptionMessage('Environment variable "AZURE_CLIENT_ID" is not set.');
+        $authenticator->checkUsability();
+    }
+
+    public function testCheckUsabilityFailureMissingSecret()
+    {
+        $authenticator = new ClientCredentialsEnvironmentAuthenticator(
+            new GuzzleClientFactory(new NullLogger()),
+            'https://vault.azure.net'
+        );
         putenv('AZURE_CLIENT_SECRET=');
         self::expectException(ClientException::class);
-        self::expectExceptionMessage(
-            'Environment variable "AZURE_TENANT_ID" is not set. Environment variable "AZURE_CLIENT_ID" is not set. ' .
-            'Environment variable "AZURE_CLIENT_SECRET" is not set.'
-        );
+        self::expectExceptionMessage('Environment variable "AZURE_CLIENT_SECRET" is not set.');
         $authenticator->checkUsability();
     }
 
     public function testValidEnvironmentSettings()
     {
         $logger = new TestLogger();
-        $authenticator = new ClientCredentialsEnvironmentAuthenticator(new GuzzleClientFactory($logger));
+        $authenticator = new ClientCredentialsEnvironmentAuthenticator(
+            new GuzzleClientFactory($logger),
+            'https://vault.azure.net'
+        );
         $authenticator->checkUsability();
         self::assertTrue($logger->hasDebugThatContains(
             'AZURE_AD_RESOURCE environment variable is not specified, falling back to default.'
@@ -48,7 +73,10 @@ class ClientCredentialsEnvironmentAuthenticatorTest extends BaseTest
         putenv('AZURE_AD_RESOURCE=https://example.com');
         putenv('AZURE_ENVIRONMENT=123');
         $logger = new TestLogger();
-        $authenticator = new ClientCredentialsEnvironmentAuthenticator(new GuzzleClientFactory($logger));
+        $authenticator = new ClientCredentialsEnvironmentAuthenticator(
+            new GuzzleClientFactory($logger),
+        'https://vault.azure.net'
+        );
         $authenticator->checkUsability();
         self::assertFalse($logger->hasDebugThatContains(
             'AZURE_AD_RESOURCE environment variable is not specified, falling back to default.'
@@ -67,7 +95,7 @@ class ClientCredentialsEnvironmentAuthenticatorTest extends BaseTest
         self::expectExceptionMessage(
             'Invalid options when creating client: Value "not-an-url" is invalid: This value is not a valid URL.'
         );
-        new ClientCredentialsEnvironmentAuthenticator(new GuzzleClientFactory($logger));
+        new ClientCredentialsEnvironmentAuthenticator(new GuzzleClientFactory($logger), 'https://vault.azure.net');
     }
 
     public function testAuthenticate()
@@ -87,7 +115,7 @@ class ClientCredentialsEnvironmentAuthenticatorTest extends BaseTest
         $factory->method('getClient')
             ->willReturn($client);
         /** @var GuzzleClientFactory $factory */
-        $auth = new ClientCredentialsEnvironmentAuthenticator($factory);
+        $auth = new ClientCredentialsEnvironmentAuthenticator($factory, 'https://vault.azure.net');
         $token = $auth->getAuthenticationToken();
         self::assertEquals('ey....ey', $token);
         self::assertCount(2, $requestHistory);
@@ -113,7 +141,6 @@ class ClientCredentialsEnvironmentAuthenticatorTest extends BaseTest
     {
         $metadata = $this->getSampleArmMetadata();
         $metadata[0]['authentication']['loginEndpoint'] = 'https://my-custom-login/';
-        $metadata[0]['suffixes']['keyVaultDns'] = 'https://my-custom/key-vault';
         $metadata[0]['name'] = 'my-azure';
         putenv('AZURE_ENVIRONMENT=my-azure');
         putenv('AZURE_AD_RESOURCE=https://example.com');
@@ -153,7 +180,7 @@ class ClientCredentialsEnvironmentAuthenticatorTest extends BaseTest
         $factory->method('getClient')
             ->willReturn($client);
         /** @var GuzzleClientFactory $factory */
-        $auth = new ClientCredentialsEnvironmentAuthenticator($factory);
+        $auth = new ClientCredentialsEnvironmentAuthenticator($factory, 'https://vault.azure.net');
         $token = $auth->getAuthenticationToken();
         self::assertEquals('ey....ey', $token);
         self::assertCount(2, $requestHistory);
@@ -169,7 +196,7 @@ class ClientCredentialsEnvironmentAuthenticatorTest extends BaseTest
         self::assertEquals('Azure PHP Client', $request->getHeader('User-Agent')[0]);
         self::assertEquals('application/x-www-form-urlencoded', $request->getHeader('Content-type')[0]);
         self::assertEquals(
-            'grant_type=client_credentials&client_id=client123&client_secret=secret123&resource=https%3A%2F%2Fhttps%3A%2F%2Fmy-custom%2Fkey-vault',
+            'grant_type=client_credentials&client_id=client123&client_secret=secret123&resource=https%3A%2F%2Fvault.azure.net',
             $request->getBody()->getContents()
         );
     }
@@ -199,7 +226,7 @@ class ClientCredentialsEnvironmentAuthenticatorTest extends BaseTest
         $factory->method('getClient')
             ->willReturn($client);
         /** @var GuzzleClientFactory $factory */
-        $auth = new ClientCredentialsEnvironmentAuthenticator($factory);
+        $auth = new ClientCredentialsEnvironmentAuthenticator($factory, 'https://vault.azure.net');
         self::expectException(ClientException::class);
         self::expectExceptionMessage('Cloud "non-existent" not found in instance metadata');
         $auth->getAuthenticationToken();
@@ -247,7 +274,7 @@ class ClientCredentialsEnvironmentAuthenticatorTest extends BaseTest
         $factory->method('getClient')
             ->willReturn($client);
         /** @var GuzzleClientFactory $factory */
-        $auth = new ClientCredentialsEnvironmentAuthenticator($factory);
+        $auth = new ClientCredentialsEnvironmentAuthenticator($factory, 'https://vault.azure.net');
         $token = $auth->getAuthenticationToken();
         self::assertEquals('ey....ey', $token);
     }
@@ -276,7 +303,7 @@ class ClientCredentialsEnvironmentAuthenticatorTest extends BaseTest
         $factory->method('getClient')
             ->willReturn($client);
         /** @var GuzzleClientFactory $factory */
-        $auth = new ClientCredentialsEnvironmentAuthenticator($factory);
+        $auth = new ClientCredentialsEnvironmentAuthenticator($factory, 'https://vault.azure.net');
         self::expectException(ClientException::class);
         self::expectExceptionMessage('Failed to get instance metadata: json_decode error: Syntax error');
         $auth->getAuthenticationToken();
@@ -306,7 +333,7 @@ class ClientCredentialsEnvironmentAuthenticatorTest extends BaseTest
         $factory->method('getClient')
             ->willReturn($client);
         /** @var GuzzleClientFactory $factory */
-        $auth = new ClientCredentialsEnvironmentAuthenticator($factory);
+        $auth = new ClientCredentialsEnvironmentAuthenticator($factory, 'https://vault.azure.net');
         self::expectException(ClientException::class);
         self::expectExceptionMessage('Invalid metadata contents: "boo"');
         $auth->getAuthenticationToken();
@@ -341,7 +368,7 @@ class ClientCredentialsEnvironmentAuthenticatorTest extends BaseTest
         $factory->method('getClient')
             ->willReturn($client);
         /** @var GuzzleClientFactory $factory */
-        $auth = new ClientCredentialsEnvironmentAuthenticator($factory);
+        $auth = new ClientCredentialsEnvironmentAuthenticator($factory, 'https://vault.azure.net');
         self::expectException(ClientException::class);
         self::expectExceptionMessage('Failed to get authentication token: json_decode error: Syntax error');
         $auth->getAuthenticationToken();
@@ -376,7 +403,7 @@ class ClientCredentialsEnvironmentAuthenticatorTest extends BaseTest
         $factory->method('getClient')
             ->willReturn($client);
         /** @var GuzzleClientFactory $factory */
-        $auth = new ClientCredentialsEnvironmentAuthenticator($factory);
+        $auth = new ClientCredentialsEnvironmentAuthenticator($factory, 'https://vault.azure.net');
         self::expectException(ClientException::class);
         self::expectExceptionMessage('Access token not provided in response: {"error":"boo"}');
         $auth->getAuthenticationToken();
