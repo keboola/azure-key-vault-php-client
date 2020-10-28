@@ -154,14 +154,25 @@ class Client
      * @param string $secretVersion
      * @return SecretBundle
      */
-    public function getSecret($secretName, $secretVersion)
+    public function getSecret($secretName, $secretVersion = null)
     {
-        $request = new Request(
-            'GET',
-            sprintf('secrets/%s/%s?api-version=%s', $secretName, $secretVersion, self::API_VERSION)
-        );
+        if( $secretVersion === nul){
+            $request = new Request(
+                'GET',
+                sprintf('secrets/%s?api-version=%s', $secretName, self::API_VERSION)
+            );
+
+        }else {
+            $request = new Request(
+                'GET',
+                sprintf('secrets/%s/%s?api-version=%s', $secretName, $secretVersion, self::API_VERSION)
+            );
+
+        }
+
         return new SecretBundle($this->sendRequest($request));
     }
+
 
     /**
      * @param int $maxResults
