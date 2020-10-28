@@ -156,7 +156,7 @@ class Client
      */
     public function getSecret($secretName, $secretVersion = null)
     {
-        if($secretVersion === nul ) {
+        if ($secretVersion === null) {
             $request = new Request(
                 'GET',
                 sprintf('secrets/%s?api-version=%s', $secretName, self::API_VERSION)
