@@ -101,6 +101,32 @@ class ClientFunctionalTest extends TestCase
         self::assertEquals(['a' => 'b', 'c' => 'd'], $getResult->getTags());
     }
 
+    public function testGetSecretDefaultVersion()
+    {
+        $payload = ')_+\\(*&^%$#@!)/"\'junk';
+        $logger = new TestLogger();
+        $client = new Client(
+            new GuzzleClientFactory($logger),
+            new AuthenticatorFactory(),
+            getenv('TEST_KEY_VAULT_URL')
+        );
+        $secretName = uniqid('my-secret');
+        $client->setSecret(
+            new SetSecretRequest($payload, new SecretAttributes(), null, ['a' => 'b', 'c' => 'd']),
+            $secretName
+        );
+        $payload = 'test';
+        $result = $client->setSecret(
+            new SetSecretRequest($payload, new SecretAttributes(), null, ['a' => 'b', 'c' => 'd']),
+            $secretName
+        );
+        self::assertEquals($payload, $result->getValue());
+
+        $getResult = $client->getSecret($result->getName());
+        self::assertEquals('test', $getResult->getValue());
+        self::assertEquals(['a' => 'b', 'c' => 'd'], $getResult->getTags());
+    }
+
     public function testGetSecrets()
     {
         $client = new Client(
