@@ -49,10 +49,11 @@ class ManagedCredentialsAuthenticatorTest extends TestCase
         /** @var GuzzleClientFactory $factory */
         $auth = new ManagedCredentialsAuthenticator($factory, 'https://vault.azure.net');
         $token = $auth->getAuthenticationToken();
+        self::assertCount(1, $requestHistory);
         // call second time, value is cached and no new request are made
         $token2 = $auth->getAuthenticationToken();
-        self::assertSame($token, $token2);
         self::assertCount(1, $requestHistory);
+        self::assertSame($token, $token2);
         /** @var Request $request */
         $request = $requestHistory[0]['request'];
         self::assertEquals('https://example.com/metadata/identity/oauth2/token?api-version=2019-11-01&format=text&resource=https://vault.azure.net', $request->getUri()->__toString());
