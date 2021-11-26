@@ -40,7 +40,7 @@ class ClientCredentialsEnvironmentAuthenticator implements AuthenticatorInterfac
     private $cloudName;
     /** @var string */
     private $resource;
-    /** @var string */
+    /** @var string|null */
     private $cachedToken;
 
     public function __construct(GuzzleClientFactory $clientFactory, $resource)

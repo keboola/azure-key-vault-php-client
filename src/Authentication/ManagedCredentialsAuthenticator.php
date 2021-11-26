@@ -16,7 +16,7 @@ class ManagedCredentialsAuthenticator implements AuthenticatorInterface
     private $logger;
     /** @var string */
     private $resource;
-    /** @var string */
+    /** @var string|null */
     private $cachedToken;
 
     const INSTANCE_METADATA_SERVICE_ENDPOINT = 'http://169.254.169.254/';
