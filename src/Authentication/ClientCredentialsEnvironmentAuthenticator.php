@@ -40,6 +40,8 @@ class ClientCredentialsEnvironmentAuthenticator implements AuthenticatorInterfac
     private $cloudName;
     /** @var string */
     private $resource;
+    /** @var string */
+    private $cachedToken;
 
     public function __construct(GuzzleClientFactory $clientFactory, $resource)
     {
@@ -84,9 +86,12 @@ class ClientCredentialsEnvironmentAuthenticator implements AuthenticatorInterfac
 
     public function getAuthenticationToken()
     {
-        $metadata = $this->getMetadata($this->armUrl);
-        $metadata = $this->processInstanceMetadata($metadata, $this->cloudName);
-        return $this->authenticate($metadata->getAuthenticationLoginEndpoint(), $this->resource);
+        if (empty($this->cachedToken)) {
+            $metadata = $this->getMetadata($this->armUrl);
+            $metadata = $this->processInstanceMetadata($metadata, $this->cloudName);
+            $this->cachedToken = $this->authenticate($metadata->getAuthenticationLoginEndpoint(), $this->resource);
+        }
+        return $this->cachedToken;
     }
 
     public function checkUsability()
