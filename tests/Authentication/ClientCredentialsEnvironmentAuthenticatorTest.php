@@ -117,8 +117,12 @@ class ClientCredentialsEnvironmentAuthenticatorTest extends BaseTest
         /** @var GuzzleClientFactory $factory */
         $auth = new ClientCredentialsEnvironmentAuthenticator($factory, 'https://vault.azure.net');
         $token = $auth->getAuthenticationToken();
-        self::assertEquals('ey....ey', $token);
         self::assertCount(2, $requestHistory);
+        // call second time, value is cached and no new request are made
+        $token2 = $auth->getAuthenticationToken();
+        self::assertCount(2, $requestHistory);
+        self::assertSame($token, $token2);
+        self::assertEquals('ey....ey', $token);
         /** @var Request $request */
         $request = $requestHistory[0]['request'];
         self::assertEquals('https://management.azure.com/metadata/endpoints?api-version=2020-01-01', $request->getUri()->__toString());

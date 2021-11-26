@@ -140,7 +140,9 @@ class GuzzleClientFactory
         return new GuzzleClient([
             'base_uri' => $url,
             'handler' => $handlerStack,
-            'headers' => ['User-Agent' => $options['userAgent'], 'Content-type' => 'application/json']
+            'headers' => ['User-Agent' => $options['userAgent'], 'Content-type' => 'application/json'],
+            'connect_timeout' => 10,
+            'timeout' => 120,
         ]);
     }
 }

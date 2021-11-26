@@ -23,6 +23,8 @@ class GuzzleClientFactoryTest extends TestCase
         $client = $factory->getClient('http://example.com');
         self::assertInstanceOf(Client::class, $client);
         self::assertInstanceOf(NullLogger::class, $factory->getLogger());
+        self::assertEquals(120, $client->getConfig('timeout'));
+        self::assertEquals(10, $client->getConfig('connect_timeout'));
     }
 
     /**

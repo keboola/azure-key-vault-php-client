@@ -16,6 +16,8 @@ class ManagedCredentialsAuthenticator implements AuthenticatorInterface
     private $logger;
     /** @var string */
     private $resource;
+    /** @var string|null */
+    private $cachedToken;
 
     const INSTANCE_METADATA_SERVICE_ENDPOINT = 'http://169.254.169.254/';
     const API_VERSION = '2019-11-01';
@@ -29,6 +31,9 @@ class ManagedCredentialsAuthenticator implements AuthenticatorInterface
 
     public function getAuthenticationToken()
     {
+        if (!empty($this->cachedToken)) {
+            return $this->cachedToken;
+        }
         try {
             $client = $this->clientFactory->getClient(self::INSTANCE_METADATA_SERVICE_ENDPOINT);
             $response = $client->get(
@@ -48,7 +53,8 @@ class ManagedCredentialsAuthenticator implements AuthenticatorInterface
                 throw new InvalidResponseException('Access token not provided in response: ' . json_encode($data));
             }
             $this->logger->info('Successfully authenticated using instance metadata.');
-            return (string) $data['access_token'];
+            $this->cachedToken = (string) $data['access_token'];
+            return $this->cachedToken;
         } catch (GuzzleException $e) {
             throw new ClientException('Failed to get authentication token: ' . $e->getMessage(), $e->getCode(), $e);
         }

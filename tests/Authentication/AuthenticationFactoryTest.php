@@ -29,8 +29,10 @@ class AuthenticationFactoryTest extends BaseTest
         self::assertInstanceOf(ClientCredentialsEnvironmentAuthenticator::class, $authenticator);
     }
 
-    public function testNoAuthenticationMethod()
+    public function testInvalidMetadataSettings()
     {
+        /* Even if the instance metadata is not available, the managed credentials authenticator is
+            returned because it's verification is optimized out */
         $logger = new TestLogger();
         $mock = self::getMockBuilder(Client::class)
             ->setMethods(['get'])
@@ -47,21 +49,13 @@ class AuthenticationFactoryTest extends BaseTest
             ->willReturn($mock);
 
         putenv('AZURE_TENANT_ID=');
-        try {
-            $authenticationFactory = new AuthenticatorFactory();
-            /** @noinspection PhpParamsInspection */
-            $authenticationFactory->getAuthenticator($factoryMock, 'https://vault.azure.net');
-            self::fail('Must throw exception');
-        } catch (ClientException $e) {
-            self::assertContains('No suitable authentication method found.', $e->getMessage());
-        }
+        $authenticationFactory = new AuthenticatorFactory();
+        /** @noinspection PhpParamsInspection */
+        $authenticator = $authenticationFactory->getAuthenticator($factoryMock, 'https://vault.azure.net');
+        self::assertInstanceOf(ManagedCredentialsAuthenticator::class, $authenticator);
         self::assertTrue($logger->hasDebugThatContains(
-            'Keboola\AzureKeyVaultClient\Authentication\ClientCredentialsEnvironmentAuthenticator is not usable: ' .
+            'ClientCredentialsEnvironmentAuthenticator is not usable: ' .
             'Environment variable "AZURE_TENANT_ID" is not set.'
-        ));
-        self::assertTrue($logger->hasDebugThatContains(
-            'Keboola\AzureKeyVaultClient\Authentication\ManagedCredentialsAuthenticator is not usable: ' .
-            'Instance metadata service not available: boo'
         ));
     }
 
@@ -87,6 +81,6 @@ class AuthenticationFactoryTest extends BaseTest
         $authenticationFactory = new AuthenticatorFactory();
         $authenticator = $authenticationFactory->getAuthenticator($factory, 'https://vault.azure.net');
         self::assertInstanceOf(ManagedCredentialsAuthenticator::class, $authenticator);
-        self::assertCount(1, $requestHistory);
+        self::assertCount(0, $requestHistory);
     }
 }
