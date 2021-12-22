@@ -11,7 +11,7 @@ Only key encrypt and decrypt methods are currently implemented.
 
 ## Installation
 
-    composer require keboola/azure-key-vault-php-client
+    composer require keboola/azure-key-vault-client
     
 ## Usage
 
