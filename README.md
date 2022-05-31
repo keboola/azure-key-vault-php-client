@@ -83,3 +83,7 @@ returns e.g. `https://testing-key-vault-client.vault.azure.net/keys/test-key/b7c
 - `TEST_KEY_VAULT_URL` - https://testing-key-vault-client.vault.azure.net
 - `TEST_KEY_NAME` - test-key
 - `TEST_KEY_VERSION` - b7c28xxxxxxxxxxxxxxxxxxxxxxxxxxx
+
+## License
+
+MIT licensed, see [LICENSE](./LICENSE) file.
