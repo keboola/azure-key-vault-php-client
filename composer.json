@@ -26,7 +26,7 @@
         }
     },
     "require": {
-        "php": ">=5.6",
+        "php": ">=7.0",
         "ext-json": "*",
         "guzzlehttp/guzzle": "^6.3",
         "psr/log": "^1.1",
@@ -38,7 +38,7 @@
         "phpunit/phpunit": "^5.6"
     },
     "scripts": {
-        "tests": "phpunit --coverage-clover build/logs/clover.xml --coverage-xml=build/logs/coverage-xml --log-junit=build/logs/phpunit.junit.xml",         
+        "tests": "phpunit --coverage-clover build/logs/clover.xml --coverage-xml=build/logs/coverage-xml --log-junit=build/logs/phpunit.junit.xml",
         "phplint": "parallel-lint -j 10 --exclude vendor .",
         "build": [
             "@phplint",
