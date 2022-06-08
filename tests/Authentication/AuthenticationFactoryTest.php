@@ -40,7 +40,7 @@ class AuthenticationFactoryTest extends BaseTest
         /** @noinspection PhpParamsInspection */
         $mock->method('get')
             ->with('/metadata?api-version=2019-11-01&format=text')
-            ->willThrowException(new \GuzzleHttp\Exception\ClientException('boo', new Request('GET', '/foo/')));
+            ->willThrowException(new \GuzzleHttp\Exception\ClientException('boo', new Request('GET', '/foo/'), new Response()));
         $factoryMock = self::getMockBuilder(GuzzleClientFactory::class)
             ->setMethods(['getClient'])
             ->setConstructorArgs([$logger])
