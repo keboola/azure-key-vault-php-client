@@ -23,30 +23,6 @@ services:
     volumes:
       - ./:/code
 
-  tests70:
-    <<: *tests
-    build:
-      context: .
-      dockerfile: Dockerfile70
-
-  tests71:
-    <<: *tests
-    build:
-      context: .
-      dockerfile: Dockerfile71
-
-  tests72:
-    <<: *tests
-    build:
-      context: .
-      dockerfile: Dockerfile72
-
-  tests73:
-    <<: *tests
-    build:
-      context: .
-      dockerfile: Dockerfile73
-
   tests74:
     <<: *tests
     build:

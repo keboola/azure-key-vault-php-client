@@ -21,46 +21,6 @@ steps:
     docker-compose pull
   displayName: 'Build Tests'
 
-- script: docker-compose run --rm tests70
-  displayName: 'Run Tests PHP 7.0'
-  env:
-    TEST_TENANT_ID: $(TEST_TENANT_ID)
-    TEST_CLIENT_ID: $(TEST_CLIENT_ID)
-    TEST_CLIENT_SECRET: $(TEST_CLIENT_SECRET)
-    TEST_KEY_VAULT_URL: $(TEST_KEY_VAULT_URL)
-    TEST_KEY_NAME: $(TEST_KEY_VAULT_URL)
-    TEST_KEY_VERSION: $(TEST_KEY_VERSION)
-
-- script: docker-compose run --rm tests71
-  displayName: 'Run Tests PHP 7.1'
-  env:
-    TEST_TENANT_ID: $(TEST_TENANT_ID)
-    TEST_CLIENT_ID: $(TEST_CLIENT_ID)
-    TEST_CLIENT_SECRET: $(TEST_CLIENT_SECRET)
-    TEST_KEY_VAULT_URL: $(TEST_KEY_VAULT_URL)
-    TEST_KEY_NAME: $(TEST_KEY_VAULT_URL)
-    TEST_KEY_VERSION: $(TEST_KEY_VERSION)
-
-- script: docker-compose run --rm tests72
-  displayName: 'Run Tests PHP 7.2'
-  env:
-    TEST_TENANT_ID: $(TEST_TENANT_ID)
-    TEST_CLIENT_ID: $(TEST_CLIENT_ID)
-    TEST_CLIENT_SECRET: $(TEST_CLIENT_SECRET)
-    TEST_KEY_VAULT_URL: $(TEST_KEY_VAULT_URL)
-    TEST_KEY_NAME: $(TEST_KEY_VAULT_URL)
-    TEST_KEY_VERSION: $(TEST_KEY_VERSION)
-
-- script: docker-compose run --rm tests73
-  displayName: 'Run Tests PHP 7.3'
-  env:
-    TEST_TENANT_ID: $(TEST_TENANT_ID)
-    TEST_CLIENT_ID: $(TEST_CLIENT_ID)
-    TEST_CLIENT_SECRET: $(TEST_CLIENT_SECRET)
-    TEST_KEY_VAULT_URL: $(TEST_KEY_VAULT_URL)
-    TEST_KEY_NAME: $(TEST_KEY_VAULT_URL)
-    TEST_KEY_VERSION: $(TEST_KEY_VERSION)
-
 - script: docker-compose run --rm tests74
   displayName: 'Run Tests PHP 7.4'
   env:
