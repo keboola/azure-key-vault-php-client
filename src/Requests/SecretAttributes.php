@@ -1,49 +1,32 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Keboola\AzureKeyVaultClient\Requests;
 
 use Keboola\AzureKeyVaultClient\Exception\ClientException;
 
 class SecretAttributes
 {
-    const RECOVERY_LEVEL_PURGEABLE = 'Purgeable';
-    const RECOVERY_LEVEL_RECOVERABLE = 'Recoverable';
-    const RECOVERY_LEVEL_RECOVERABLE_PROTECTED_SUBSCRIPTION = 'Recoverable+ProtectedSubscription';
-    const RECOVERY_LEVEL_RECOVERABLE_PURGEABLE = 'Recoverable+Purgeable';
+    public const RECOVERY_LEVEL_PURGEABLE = 'Purgeable';
+    public const RECOVERY_LEVEL_RECOVERABLE = 'Recoverable';
+    public const RECOVERY_LEVEL_RECOVERABLE_PROTECTED_SUBSCRIPTION = 'Recoverable+ProtectedSubscription';
+    public const RECOVERY_LEVEL_RECOVERABLE_PURGEABLE = 'Recoverable+Purgeable';
 
-    /** @var int */
-    private $created;
+    private ?int $created;
+    private ?bool $enabled;
+    private ?int $exp;
+    private ?int $nbf;
+    private ?string $recoveryLevel;
+    private ?int $updated;
 
-    /** @var bool */
-    private $enabled;
-
-    /** @var int */
-    private $exp;
-
-    /** @var int */
-    private $nbf;
-
-    /** @var string */
-    private $recoveryLevel;
-
-    /** @var int */
-    private $updated;
-
-    /**
-     * @param string $created
-     * @param string $enabled
-     * @param string $exp
-     * @param string $nbf
-     * @param string $recoveryLevel
-     * @param string $updated
-     */
     public function __construct(
-        $created = null,
-        $enabled = null,
-        $exp = null,
-        $nbf = null,
-        $recoveryLevel = null,
-        $updated = null
+        ?int $created = null,
+        ?bool $enabled = null,
+        ?int $exp = null,
+        ?int $nbf = null,
+        ?string $recoveryLevel = null,
+        ?int $updated = null
     ) {
         if (!is_null($recoveryLevel) && !in_array(
             $recoveryLevel,
@@ -64,11 +47,7 @@ class SecretAttributes
         $this->updated = $updated;
     }
 
-    /**
-     * @param array $attributes
-     * @return SecretAttributes
-     */
-    public static function fromArray(array $attributes)
+    public static function fromArray(array $attributes): SecretAttributes
     {
         foreach (['created', 'enabled', 'exp', 'nbf', 'recoveryLevel', 'updated'] as $field) {
             if (!isset($attributes[$field])) {
@@ -85,10 +64,7 @@ class SecretAttributes
         );
     }
 
-    /**
-     * @return array
-     */
-    public function getArray()
+    public function getArray(): array
     {
         $result = [];
         if (!is_null($this->created)) {

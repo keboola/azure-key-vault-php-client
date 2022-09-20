@@ -1,12 +1,12 @@
 <?php
 
-namespace Keboola\AzureKeyVaultClient\Requests;
+declare(strict_types=1);
 
-use Keboola\AzureKeyVaultClient\Base64UrlEncoder;
+namespace Keboola\AzureKeyVaultClient\Requests;
 
 class DecryptRequest extends EncryptDecryptRequest
 {
-    public function getArray()
+    public function getArray(): array
     {
         return [
             'alg' => $this->alg,

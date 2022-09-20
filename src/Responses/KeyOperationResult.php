@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Keboola\AzureKeyVaultClient\Responses;
 
 use Keboola\AzureKeyVaultClient\Base64UrlEncoder;
@@ -7,15 +9,9 @@ use Keboola\AzureKeyVaultClient\Exception\InvalidResponseException;
 
 class KeyOperationResult
 {
-    /** @var string */
-    private $kid;
+    private string $kid;
+    private string $value;
 
-    /** @var string */
-    private $value;
-
-    /**
-     * @param array $data
-     */
     public function __construct(array $data)
     {
         if (!isset($data['kid']) || !isset($data['value'])) {
@@ -25,11 +21,7 @@ class KeyOperationResult
         $this->value = (string) $data['value'];
     }
 
-    /**
-     * @param bool $decode
-     * @return string
-     */
-    public function getValue($decode)
+    public function getValue(bool $decode): string
     {
         if ($decode) {
             return Base64UrlEncoder::decode($this->value);
@@ -38,10 +30,7 @@ class KeyOperationResult
         }
     }
 
-    /**
-     * @return string
-     */
-    public function getKid()
+    public function getKid(): string
     {
         return $this->kid;
     }

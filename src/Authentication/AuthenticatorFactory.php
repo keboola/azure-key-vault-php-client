@@ -1,19 +1,15 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Keboola\AzureKeyVaultClient\Authentication;
 
 use Keboola\AzureKeyVaultClient\Exception\ClientException;
 use Keboola\AzureKeyVaultClient\GuzzleClientFactory;
-use Psr\Log\LoggerInterface;
 
 class AuthenticatorFactory
 {
-    /**
-     * @param LoggerInterface $logger
-     * @param GuzzleClientFactory $clientFactory
-     * @return AuthenticatorInterface
-     */
-    public function getAuthenticator(GuzzleClientFactory $clientFactory, $resource)
+    public function getAuthenticator(GuzzleClientFactory $clientFactory, string $resource): AuthenticatorInterface
     {
         $authenticator = new ClientCredentialsEnvironmentAuthenticator($clientFactory, $resource);
         try {

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Keboola\AzureKeyVaultClient\Tests\Requests;
 
 use Keboola\AzureKeyVaultClient\Requests\SecretAttributes;
@@ -8,9 +10,9 @@ use PHPUnit\Framework\TestCase;
 
 class SetSecretRequestTest extends TestCase
 {
-    public function testSetSecretRequestFull()
+    public function testSetSecretRequestFull(): void
     {
-        $request = new SetSecretRequest('so-secret', new SecretAttributes('123'), 'plain', ['a' => 'b']);
+        $request = new SetSecretRequest('so-secret', new SecretAttributes(123), 'plain', ['a' => 'b']);
         self:self::assertEquals(
             [
                 'value' => 'so-secret',
@@ -24,7 +26,7 @@ class SetSecretRequestTest extends TestCase
         );
     }
 
-    public function testSetSecretRequestMinimal()
+    public function testSetSecretRequestMinimal(): void
     {
         $request = new SetSecretRequest('so-secret', new SecretAttributes());
         self:self::assertEquals(

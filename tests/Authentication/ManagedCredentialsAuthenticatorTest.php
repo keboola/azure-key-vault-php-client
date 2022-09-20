@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Keboola\AzureKeyVaultClient\Tests\Authentication;
 
 use GuzzleHttp\Handler\MockHandler;
@@ -15,7 +17,7 @@ use Psr\Log\NullLogger;
 
 class ManagedCredentialsAuthenticatorTest extends TestCase
 {
-    public function testGetAuthenticateToken()
+    public function testGetAuthenticateToken(): void
     {
         $mock = new MockHandler([
             new Response(
@@ -40,13 +42,8 @@ class ManagedCredentialsAuthenticatorTest extends TestCase
         $factory = new GuzzleClientFactory(new NullLogger());
         $client = $factory->getClient('https://example.com', ['handler' => $stack]);
 
-        $factory = self::getMockBuilder(GuzzleClientFactory::class)
-            ->setMethods(['getClient'])
-            ->setConstructorArgs([new NullLogger()])
-            ->getMock();
-        $factory->method('getClient')
-            ->willReturn($client);
-        /** @var GuzzleClientFactory $factory */
+        $factory = $this->createMock(GuzzleClientFactory::class);
+        $factory->method('getClient')->willReturn($client);
         $auth = new ManagedCredentialsAuthenticator($factory, 'https://vault.azure.net');
         $token = $auth->getAuthenticationToken();
         self::assertCount(1, $requestHistory);
@@ -56,14 +53,18 @@ class ManagedCredentialsAuthenticatorTest extends TestCase
         self::assertSame($token, $token2);
         /** @var Request $request */
         $request = $requestHistory[0]['request'];
-        self::assertEquals('https://example.com/metadata/identity/oauth2/token?api-version=2019-11-01&format=text&resource=https://vault.azure.net', $request->getUri()->__toString());
+        self::assertEquals(
+            // phpcs:ignore Generic.Files.LineLength
+            'https://example.com/metadata/identity/oauth2/token?api-version=2019-11-01&format=text&resource=https://vault.azure.net',
+            $request->getUri()->__toString()
+        );
         self::assertEquals('GET', $request->getMethod());
         self::assertEquals('Azure PHP Client', $request->getHeader('User-Agent')[0]);
         self::assertEquals('true', $request->getHeader('Metadata')[0]);
         self::assertEquals('application/json', $request->getHeader('Content-type')[0]);
     }
 
-    public function testGetAuthenticateInvalid()
+    public function testGetAuthenticateInvalid(): void
     {
         $mock = new MockHandler([
             new Response(
@@ -82,20 +83,15 @@ class ManagedCredentialsAuthenticatorTest extends TestCase
         $factory = new GuzzleClientFactory(new NullLogger());
         $client = $factory->getClient('https://example.com', ['handler' => $stack]);
 
-        $factory = self::getMockBuilder(GuzzleClientFactory::class)
-            ->setMethods(['getClient'])
-            ->setConstructorArgs([new NullLogger()])
-            ->getMock();
-        $factory->method('getClient')
-            ->willReturn($client);
-        /** @var GuzzleClientFactory $factory */
+        $factory = $this->createMock(GuzzleClientFactory::class);
+        $factory->method('getClient')->willReturn($client);
         $auth = new ManagedCredentialsAuthenticator($factory, 'https://vault.azure.net');
         self::expectException(ClientException::class);
         self::expectExceptionMessage('Access token not provided in response: {"foo":"bar"}');
         $auth->getAuthenticationToken();
     }
 
-    public function testGetAuthenticateMalformed()
+    public function testGetAuthenticateMalformed(): void
     {
         $mock = new MockHandler([
             new Response(
@@ -114,20 +110,15 @@ class ManagedCredentialsAuthenticatorTest extends TestCase
         $factory = new GuzzleClientFactory(new NullLogger());
         $client = $factory->getClient('https://example.com', ['handler' => $stack]);
 
-        $factory = self::getMockBuilder(GuzzleClientFactory::class)
-            ->setMethods(['getClient'])
-            ->setConstructorArgs([new NullLogger()])
-            ->getMock();
-        $factory->method('getClient')
-            ->willReturn($client);
-        /** @var GuzzleClientFactory $factory */
+        $factory = $this->createMock(GuzzleClientFactory::class);
+        $factory->method('getClient')->willReturn($client);
         $auth = new ManagedCredentialsAuthenticator($factory, 'https://vault.azure.net');
         self::expectException(ClientException::class);
-        self::expectExceptionMessage('Failed to get authentication token: json_decode error: Syntax error');
+        self::expectExceptionMessage('Failed to get authentication token: Syntax error');
         $auth->getAuthenticationToken();
     }
 
-    public function testCheckUsabilitySuccess()
+    public function testCheckUsabilitySuccess(): void
     {
         $mock = new MockHandler([
             new Response(
@@ -144,26 +135,24 @@ class ManagedCredentialsAuthenticatorTest extends TestCase
         $factory = new GuzzleClientFactory(new NullLogger());
         $client = $factory->getClient('https://example.com', ['handler' => $stack]);
 
-        $factory = self::getMockBuilder(GuzzleClientFactory::class)
-            ->setMethods(['getClient'])
-            ->setConstructorArgs([new NullLogger()])
-            ->getMock();
-        $factory->method('getClient')
-            ->willReturn($client);
-        /** @var GuzzleClientFactory $factory */
+        $factory = $this->createMock(GuzzleClientFactory::class);
+        $factory->method('getClient')->willReturn($client);
         $auth = new ManagedCredentialsAuthenticator($factory, 'https://vault.azure.net');
         $auth->checkUsability();
         self::assertCount(1, $requestHistory);
         /** @var Request $request */
         $request = $requestHistory[0]['request'];
-        self::assertEquals('https://example.com/metadata?api-version=2019-11-01&format=text', $request->getUri()->__toString());
+        self::assertEquals(
+            'https://example.com/metadata?api-version=2019-11-01&format=text',
+            $request->getUri()->__toString()
+        );
         self::assertEquals('GET', $request->getMethod());
         self::assertEquals('Azure PHP Client', $request->getHeader('User-Agent')[0]);
         self::assertEquals('true', $request->getHeader('Metadata')[0]);
         self::assertEquals('application/json', $request->getHeader('Content-type')[0]);
     }
 
-    public function testCheckUsabilityFailure()
+    public function testCheckUsabilityFailure(): void
     {
         $mock = new MockHandler([
             new Response(
@@ -185,15 +174,13 @@ class ManagedCredentialsAuthenticatorTest extends TestCase
         $factory = new GuzzleClientFactory(new NullLogger());
         $client = $factory->getClient('https://example.com', ['handler' => $stack, 'backoffMaxTries' => 1]);
 
-        $factory = self::getMockBuilder(GuzzleClientFactory::class)
-            ->setMethods(['getClient'])
-            ->setConstructorArgs([new NullLogger()])
-            ->getMock();
-        $factory->method('getClient')
-            ->willReturn($client);
-        /** @var GuzzleClientFactory $factory */
+        $factory = $this->createMock(GuzzleClientFactory::class);
+        $factory->method('getClient')->willReturn($client);
         $auth = new ManagedCredentialsAuthenticator($factory, 'https://vault.azure.net');
-        self::expectException('Instance metadata service not available: Server error: `GET https://example.com/metadata?api-version=2019-11-01&format=text` resulted in a `500 Internal Server Error`');
+        self::expectExceptionMessage(
+            // phpcs:ignore Generic.Files.LineLength
+            'Instance metadata service not available: Server error: `GET https://example.com/metadata?api-version=2019-11-01&format=text` resulted in a `500 Internal Server Error`'
+        );
         self::expectException(ClientException::class);
         $auth->checkUsability();
     }

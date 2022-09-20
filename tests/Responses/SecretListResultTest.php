@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Keboola\AzureKeyVaultClient\Tests\Responses;
 
 use Keboola\AzureKeyVaultClient\Exception\InvalidResponseException;
@@ -8,7 +10,7 @@ use PHPUnit\Framework\TestCase;
 
 class SecretListResultTest extends TestCase
 {
-    public function testSecretListResultFull()
+    public function testSecretListResultFull(): void
     {
         $secretItemList = new SecretListResult([
             'value' => [
@@ -16,8 +18,8 @@ class SecretListResultTest extends TestCase
                     'attributes' => [
                         'created' => 1590586213,
                         'enabled' => true,
-                        'exp' => '1590586214',
-                        'nbf' => '1590586215',
+                        'exp' => 1590586214,
+                        'nbf' => 1590586215,
                         'recoveryLevel' => 'Purgeable',
                         'updated' => 1590586213,
                     ],
@@ -26,15 +28,15 @@ class SecretListResultTest extends TestCase
                     'managed' => false,
                     'tags' => [
                         'a' => 'b',
-                        'c' => 'd'
+                        'c' => 'd',
                     ],
                 ],
                 [
                     'attributes' => [
                         'created' => 290586213,
                         'enabled' => false,
-                        'exp' => '290586214',
-                        'nbf' => '290586215',
+                        'exp' => 290586214,
+                        'nbf' => 290586215,
                         'recoveryLevel' => 'Recoverable',
                         'updated' => 290586213,
                     ],
@@ -43,7 +45,7 @@ class SecretListResultTest extends TestCase
                     'managed' => true,
                     'tags' => [
                         'd' => 'c',
-                        'b' => 'a'
+                        'b' => 'a',
                     ],
                 ],
             ],
@@ -98,14 +100,14 @@ class SecretListResultTest extends TestCase
         self::assertEquals('https://example.com/next', $secretItemList->getNextLink());
     }
 
-    public function testSecretListInvalid()
+    public function testSecretListInvalid(): void
     {
         self::expectException(InvalidResponseException::class);
         self::expectExceptionMessage('SecretListResult is invalid: []');
         new SecretListResult([]);
     }
 
-    public function testSecretListMinimal()
+    public function testSecretListMinimal(): void
     {
         $secretListResult = new SecretListResult(['value' => []]);
         self::assertEquals([], $secretListResult->getValue());

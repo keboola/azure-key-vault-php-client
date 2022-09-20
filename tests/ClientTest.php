@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Keboola\AzureKeyVaultClient\Tests;
 
 use GuzzleHttp\Handler\MockHandler;
@@ -17,13 +19,13 @@ use Psr\Log\Test\TestLogger;
 
 class ClientTest extends BaseTest
 {
-    public function testEncrypt()
+    public function testEncrypt(): void
     {
         $mock = new MockHandler([
             new Response(
                 200,
                 ['Content-Type' => 'application/json'],
-                json_encode($this->getSampleArmMetadata())
+                (string) json_encode($this->getSampleArmMetadata())
             ),
             new Response(
                 200,
@@ -75,13 +77,22 @@ class ClientTest extends BaseTest
         self::assertCount(3, $requestHistory);
         /** @var Request $request */
         $request = $requestHistory[0]['request'];
-        self::assertEquals('https://management.azure.com/metadata/endpoints?api-version=2020-01-01', $request->getUri()->__toString());
+        self::assertEquals(
+            'https://management.azure.com/metadata/endpoints?api-version=2020-01-01',
+            $request->getUri()->__toString()
+        );
         /** @var Request $request */
         $request = $requestHistory[1]['request'];
-        self::assertEquals('https://login.windows.net/tenant123/oauth2/token', $request->getUri()->__toString());
+        self::assertEquals(
+            'https://login.windows.net/tenant123/oauth2/token',
+            $request->getUri()->__toString()
+        );
         /** @var Request $request */
         $request = $requestHistory[2]['request'];
-        self::assertEquals('https://example.com/keys/test-key/test-version/encrypt?api-version=7.0', $request->getUri()->__toString());
+        self::assertEquals(
+            'https://example.com/keys/test-key/test-version/encrypt?api-version=7.0',
+            $request->getUri()->__toString()
+        );
         self::assertEquals('POST', $request->getMethod());
         self::assertEquals('Azure PHP Client', $request->getHeader('User-Agent')[0]);
         self::assertEquals('application/json', $request->getHeader('Content-type')[0]);
@@ -93,17 +104,16 @@ class ClientTest extends BaseTest
      * @param string $body
      * @param string $expectedError
      */
-    public function testEncryptClientError($body, $expectedError)
+    public function testEncryptClientError(string $body, string $expectedError): void
     {
         $mock = new MockHandler(array_merge(
-                $this->getMockAuthResponses(),
-                [new Response(
-                    400,
-                    ['Content-Type' => 'application/json'],
-                    $body
-                )]
-            )
-        );
+            $this->getMockAuthResponses(),
+            [new Response(
+                400,
+                ['Content-Type' => 'application/json'],
+                $body
+            )]
+        ));
 
         $requestHistory = [];
         $history = Middleware::history($requestHistory);
@@ -137,14 +147,23 @@ class ClientTest extends BaseTest
         self::assertCount(3, $requestHistory);
         /** @var Request $request */
         $request = $requestHistory[0]['request'];
-        self::assertEquals('https://management.azure.com/metadata/endpoints?api-version=2020-01-01', $request->getUri()->__toString());
+        self::assertEquals(
+            'https://management.azure.com/metadata/endpoints?api-version=2020-01-01',
+            $request->getUri()->__toString()
+        );
         $request = $requestHistory[1]['request'];
-        self::assertEquals('https://login.windows.net/tenant123/oauth2/token', $request->getUri()->__toString());
+        self::assertEquals(
+            'https://login.windows.net/tenant123/oauth2/token',
+            $request->getUri()->__toString()
+        );
         $request = $requestHistory[2]['request'];
-        self::assertEquals('https://example.com/keys/test-key/test-version/encrypt?api-version=7.0', $request->getUri()->__toString());
+        self::assertEquals(
+            'https://example.com/keys/test-key/test-version/encrypt?api-version=7.0',
+            $request->getUri()->__toString()
+        );
     }
 
-    public function errorProvider()
+    public function errorProvider(): array
     {
         return [
             'graceful-error' => [
@@ -154,26 +173,28 @@ class ClientTest extends BaseTest
                         "message": "Property  has invalid value\r\n"
                     }
                 }',
-                'BadParameter: Property  has invalid value'
+                'BadParameter: Property  has invalid value',
             ],
             'less-graceful-error' => [
                 '{
                     "error": "Cooties!"
                 }',
-                'Request failed with error: Cooties!'
+                'Request failed with error: Cooties!',
             ],
             'not-graceful' => [
                 '{"broken',
-                "Client error: `POST https://example.com/keys/test-key/test-version/encrypt?api-version=7.0` resulted in a `400 Bad Request` response:\n{\"broken"
+                // phpcs:ignore Generic.Files.LineLength
+                "Client error: `POST https://example.com/keys/test-key/test-version/encrypt?api-version=7.0` resulted in a `400 Bad Request` response:\n{\"broken",
             ],
             'not-graceful-at-all' => [
                 '<HTLMTL Transitional>Cooties!',
-                "Client error: `POST https://example.com/keys/test-key/test-version/encrypt?api-version=7.0` resulted in a `400 Bad Request` response:\n<HTLMTL Transitional>Cooties!"
+                // phpcs:ignore Generic.Files.LineLength
+                "Client error: `POST https://example.com/keys/test-key/test-version/encrypt?api-version=7.0` resulted in a `400 Bad Request` response:\n<HTLMTL Transitional>Cooties!",
             ],
         ];
     }
 
-    public function testEncryptServerError()
+    public function testEncryptServerError(): void
     {
         $mock = new MockHandler(
             array_merge(
@@ -233,14 +254,29 @@ class ClientTest extends BaseTest
         self::assertCount(5, $requestHistory);
         /** @var Request $request */
         $request = $requestHistory[0]['request'];
-        self::assertEquals('https://management.azure.com/metadata/endpoints?api-version=2020-01-01', $request->getUri()->__toString());
+        self::assertEquals(
+            'https://management.azure.com/metadata/endpoints?api-version=2020-01-01',
+            $request->getUri()->__toString()
+        );
         $request = $requestHistory[1]['request'];
-        self::assertEquals('https://login.windows.net/tenant123/oauth2/token', $request->getUri()->__toString());
+        self::assertEquals(
+            'https://login.windows.net/tenant123/oauth2/token',
+            $request->getUri()->__toString()
+        );
         $request = $requestHistory[2]['request'];
-        self::assertEquals('https://example.com/keys/test-key/test-version/encrypt?api-version=7.0', $request->getUri()->__toString());
+        self::assertEquals(
+            'https://example.com/keys/test-key/test-version/encrypt?api-version=7.0',
+            $request->getUri()->__toString()
+        );
         $request = $requestHistory[3]['request'];
-        self::assertEquals('https://example.com/keys/test-key/test-version/encrypt?api-version=7.0', $request->getUri()->__toString());
+        self::assertEquals(
+            'https://example.com/keys/test-key/test-version/encrypt?api-version=7.0',
+            $request->getUri()->__toString()
+        );
         $request = $requestHistory[4]['request'];
-        self::assertEquals('https://example.com/keys/test-key/test-version/encrypt?api-version=7.0', $request->getUri()->__toString());
+        self::assertEquals(
+            'https://example.com/keys/test-key/test-version/encrypt?api-version=7.0',
+            $request->getUri()->__toString()
+        );
     }
 }

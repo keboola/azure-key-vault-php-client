@@ -1,8 +1,11 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Keboola\AzureKeyVaultClient\Tests;
 
 use GuzzleHttp\Client;
+use GuzzleHttp\Exception\ClientException as GuzzleClientException;
 use GuzzleHttp\Exception\ServerException;
 use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\HandlerStack;
@@ -17,7 +20,7 @@ use Psr\Log\Test\TestLogger;
 
 class GuzzleClientFactoryTest extends TestCase
 {
-    public function testGetClient()
+    public function testGetClient(): void
     {
         $factory = new GuzzleClientFactory(new NullLogger());
         $client = $factory->getClient('http://example.com');
@@ -29,10 +32,8 @@ class GuzzleClientFactoryTest extends TestCase
 
     /**
      * @dataProvider invalidOptionsProvider
-     * @param array $options
-     * @param string $expectedMessage
      */
-    public function testInvalidOptions(array $options, $expectedMessage)
+    public function testInvalidOptions(array $options, string $expectedMessage): void
     {
         $factory = new GuzzleClientFactory(new NullLogger());
         self::expectException(ClientException::class);
@@ -40,16 +41,14 @@ class GuzzleClientFactoryTest extends TestCase
         $factory->getClient('http://example.com', $options);
     }
 
-    /**
-     * @return array
-     */
-    public function invalidOptionsProvider()
+    public function invalidOptionsProvider(): array
     {
         return [
             'invalid-options' => [
                 [
                     'non-existent' => 'foo',
                 ],
+                // phpcs:ignore Generic.Files.LineLength
                 'Invalid options when creating client: non-existent. Valid options are: backoffMaxTries, userAgent, handler, logger.',
             ],
             'invalid-backoff' => [
@@ -61,7 +60,7 @@ class GuzzleClientFactoryTest extends TestCase
         ];
     }
 
-    public function testInvalidUrl()
+    public function testInvalidUrl(): void
     {
         $factory = new GuzzleClientFactory(new NullLogger());
         self::expectException(ClientException::class);
@@ -69,7 +68,7 @@ class GuzzleClientFactoryTest extends TestCase
         $factory->getClient('boo', []);
     }
 
-    public function testLogger()
+    public function testLogger(): void
     {
         $logger = new TestLogger();
         $factory = new GuzzleClientFactory(new NullLogger());
@@ -79,7 +78,7 @@ class GuzzleClientFactoryTest extends TestCase
         self::assertTrue($logger->hasInfoThatContains('"GET  /1.1" 200'));
     }
 
-    public function testDefaultHeader()
+    public function testDefaultHeader(): void
     {
         $mock = new MockHandler([
             new Response(
@@ -95,7 +94,10 @@ class GuzzleClientFactoryTest extends TestCase
         $stack->push($history);
 
         $factory = new GuzzleClientFactory(new NullLogger());
-        $client = $factory->getClient('https://example.com', ['handler' => $stack, 'userAgent' => 'test-client']);
+        $client = $factory->getClient(
+            'https://example.com',
+            ['handler' => $stack, 'userAgent' => 'test-client']
+        );
         $client->get('');
 
         self::assertCount(1, $requestHistory);
@@ -106,10 +108,9 @@ class GuzzleClientFactoryTest extends TestCase
         self::assertEquals('test-client', $request->getHeader('User-Agent')[0]);
         // default header
         self::assertEquals('application/json', $request->getHeader('Content-type')[0]);
-
     }
 
-    public function testRetryDeciderNoRetry()
+    public function testRetryDeciderNoRetry(): void
     {
         $mock = new MockHandler([
             new Response(
@@ -125,12 +126,18 @@ class GuzzleClientFactoryTest extends TestCase
         $stack->push($history);
 
         $factory = new GuzzleClientFactory(new NullLogger());
-        $client = $factory->getClient('https://example.com', ['handler' => $stack, 'userAgent' => 'test-client']);
+        $client = $factory->getClient(
+            'https://example.com',
+            ['handler' => $stack, 'userAgent' => 'test-client']
+        );
         try {
             $client->get('');
             self::fail('Must throw exception');
-        } catch (\GuzzleHttp\Exception\ClientException $e) {
-            self::assertStringContainsString('Client error: `GET https://example.com` resulted in a `403 Forbidden` response', $e->getMessage());
+        } catch (GuzzleClientException $e) {
+            self::assertStringContainsString(
+                'Client error: `GET https://example.com` resulted in a `403 Forbidden` response',
+                $e->getMessage()
+            );
         }
 
         self::assertCount(1, $requestHistory);
@@ -139,7 +146,7 @@ class GuzzleClientFactoryTest extends TestCase
         self::assertEquals('https://example.com', $request->getUri()->__toString());
     }
 
-    public function testRetryDeciderRetryFail()
+    public function testRetryDeciderRetryFail(): void
     {
         $mock = new MockHandler([
             new Response(
@@ -165,12 +172,18 @@ class GuzzleClientFactoryTest extends TestCase
         $stack->push($history);
 
         $factory = new GuzzleClientFactory(new NullLogger());
-        $client = $factory->getClient('https://example.com', ['handler' => $stack, 'userAgent' => 'test-client', 'backoffMaxTries' => 2]);
+        $client = $factory->getClient(
+            'https://example.com',
+            ['handler' => $stack, 'userAgent' => 'test-client', 'backoffMaxTries' => 2]
+        );
         try {
             $client->get('');
             self::fail('Must throw exception');
         } catch (ServerException $e) {
-            self::assertStringContainsString('Server error: `GET https://example.com` resulted in a `501 Not Implemented`', $e->getMessage());
+            self::assertStringContainsString(
+                'Server error: `GET https://example.com` resulted in a `501 Not Implemented`',
+                $e->getMessage()
+            );
         }
 
         self::assertCount(3, $requestHistory);
@@ -183,7 +196,7 @@ class GuzzleClientFactoryTest extends TestCase
         self::assertEquals('https://example.com', $request->getUri()->__toString());
     }
 
-    public function testRetryDeciderRetrySuccess()
+    public function testRetryDeciderRetrySuccess(): void
     {
         $mock = new MockHandler([
             new Response(
@@ -209,7 +222,10 @@ class GuzzleClientFactoryTest extends TestCase
         $stack->push($history);
         $logger = new TestLogger();
         $factory = new GuzzleClientFactory($logger);
-        $client = $factory->getClient('https://example.com', ['handler' => $stack, 'userAgent' => 'test-client', 'backoffMaxTries' => 2]);
+        $client = $factory->getClient(
+            'https://example.com',
+            ['handler' => $stack, 'userAgent' => 'test-client', 'backoffMaxTries' => 2]
+        );
         $client->get('');
 
         self::assertCount(3, $requestHistory);
@@ -220,11 +236,13 @@ class GuzzleClientFactoryTest extends TestCase
         self::assertEquals('https://example.com', $request->getUri()->__toString());
         $request = $requestHistory[2]['request'];
         self::assertEquals('https://example.com', $request->getUri()->__toString());
-        self::assertTrue($logger->hasWarningThatContains('Request failed (Server error: `GET https://example.com` resulted in a `501 Not Implemented`'));
+        self::assertTrue($logger->hasWarningThatContains(
+            'Request failed (Server error: `GET https://example.com` resulted in a `501 Not Implemented`'
+        ));
         self::assertTrue($logger->hasWarningThatContains('retrying (1 of 2)'));
     }
 
-    public function testRetryDeciderThrottlingRetrySuccess()
+    public function testRetryDeciderThrottlingRetrySuccess(): void
     {
         $mock = new MockHandler([
             new Response(
@@ -250,7 +268,10 @@ class GuzzleClientFactoryTest extends TestCase
         $stack->push($history);
         $logger = new TestLogger();
         $factory = new GuzzleClientFactory($logger);
-        $client = $factory->getClient('https://example.com', ['handler' => $stack, 'userAgent' => 'test-client', 'backoffMaxTries' => 2]);
+        $client = $factory->getClient(
+            'https://example.com',
+            ['handler' => $stack, 'userAgent' => 'test-client', 'backoffMaxTries' => 2]
+        );
         $client->get('');
 
         self::assertCount(3, $requestHistory);
@@ -261,7 +282,9 @@ class GuzzleClientFactoryTest extends TestCase
         self::assertEquals('https://example.com', $request->getUri()->__toString());
         $request = $requestHistory[2]['request'];
         self::assertEquals('https://example.com', $request->getUri()->__toString());
-        self::assertTrue($logger->hasWarningThatContains('Request failed (Client error: `GET https://example.com` resulted in a `429 Too Many Requests`'));
+        self::assertTrue($logger->hasWarningThatContains(
+            'Request failed (Client error: `GET https://example.com` resulted in a `429 Too Many Requests`'
+        ));
         self::assertTrue($logger->hasWarningThatContains('retrying (1 of 2)'));
     }
 }

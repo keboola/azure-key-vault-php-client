@@ -1,13 +1,17 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Keboola\AzureKeyVaultClient;
 
 use GuzzleHttp\Client as GuzzleClient;
 use GuzzleHttp\Exception\GuzzleException;
+use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Middleware;
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Response;
+use JsonException;
 use Keboola\AzureKeyVaultClient\Authentication\AuthenticatorFactory;
 use Keboola\AzureKeyVaultClient\Authentication\AuthenticatorInterface;
 use Keboola\AzureKeyVaultClient\Exception\ClientException;
@@ -21,28 +25,22 @@ use Keboola\AzureKeyVaultClient\Responses\SecretItem;
 use Keboola\AzureKeyVaultClient\Responses\SecretListResult;
 use Psr\Http\Message\RequestInterface;
 use Psr\Log\LoggerInterface;
+use Throwable;
 
 class Client
 {
-    const API_VERSION = '7.0';
-    const DEFAULT_PAGE_SIZE = 25;
+    private const API_VERSION = '7.0';
+    private const DEFAULT_PAGE_SIZE = 25;
 
-    /** @var GuzzleClient */
-    private $guzzle;
-
-    /** @var LoggerInterface */
-    private $logger;
-
-    /** @var AuthenticatorInterface */
-    private $authenticator;
-
-    /** @var string */
-    private $token;
+    private GuzzleClient $guzzle;
+    private LoggerInterface $logger;
+    private AuthenticatorInterface $authenticator;
+    private string $token;
 
     public function __construct(
         GuzzleClientFactory $clientFactory,
         AuthenticatorFactory $authenticatorFactory,
-        $vaultBaseUrl
+        string $vaultBaseUrl
     ) {
         $handlerStack = HandlerStack::create();
         // Set handler to set authorization
@@ -57,33 +55,34 @@ class Client
         $this->authenticator = $authenticatorFactory->getAuthenticator($clientFactory, 'https://vault.azure.net');
     }
 
-    private function sendRequest(Request $request)
+    private function sendRequest(Request $request): array
     {
         try {
-            if (!$this->token) {
+            if (empty($this->token)) {
                 $this->token = $this->authenticator->getAuthenticationToken();
                 $this->logger->info('Successfully authenticated.');
             }
             $response = $this->guzzle->send($request);
-            return \GuzzleHttp\json_decode($response->getBody()->getContents(), true);
-        } catch (GuzzleException $e) {
+            return (array) json_decode($response->getBody()->getContents(), true, 512, JSON_THROW_ON_ERROR);
+        } catch (JsonException | GuzzleException $e) {
             $this->handleRequestException($e);
             throw new ClientException($e->getMessage(), $e->getCode(), $e);
         }
     }
 
-    private function handleRequestException(GuzzleException $e)
+    private function handleRequestException(Throwable $e): void
     {
-        if ($e->getResponse() && is_a($e->getResponse(), Response::class)) {
-            /** @var Response $response */
+        if (is_a($e, RequestException::class) && $e->getResponse() && is_a($e->getResponse(), Response::class)) {
             $response = $e->getResponse();
             try {
-                $data = \GuzzleHttp\json_decode($response->getBody()->getContents(), true);
-            } catch (GuzzleException $e2) {
+                $data = (array) json_decode($response->getBody()->getContents(), true, 512, JSON_THROW_ON_ERROR);
+            } catch (JsonException $e2) {
                 // throw the original one, we don't care about e2
                 throw new ClientException(trim($e->getMessage()), $response->getStatusCode(), $e);
             }
-            if (!empty($data['error']) && !empty($data['error']['message']) && !empty($data['error']['code'])) {
+            if (!empty($data['error']) && is_array($data['error']) &&
+                !empty($data['error']['message']) && !empty($data['error']['code'])
+            ) {
                 throw new ClientException(
                     trim($data['error']['code'] . ': ' . $data['error']['message']),
                     $response->getStatusCode(),
@@ -99,62 +98,40 @@ class Client
         }
     }
 
-    /**
-     * @param EncryptRequest $encryptRequest
-     * @param $keyName
-     * @param $keyVersion
-     * @return KeyOperationResult
-     */
-    public function encrypt(EncryptRequest $encryptRequest, $keyName, $keyVersion)
+    public function encrypt(EncryptRequest $encryptRequest, string $keyName, string $keyVersion): KeyOperationResult
     {
         $request = new Request(
             'POST',
             sprintf('keys/%s/%s/encrypt?api-version=%s', $keyName, $keyVersion, self::API_VERSION),
             [],
-            \GuzzleHttp\json_encode($encryptRequest->getArray())
+            (string) json_encode($encryptRequest->getArray())
         );
         return new KeyOperationResult($this->sendRequest($request));
     }
 
-    /**
-     * @param DecryptRequest $encryptRequest
-     * @param $keyName
-     * @param $keyVersion
-     * @return KeyOperationResult
-     */
-    public function decrypt(DecryptRequest $encryptRequest, $keyName, $keyVersion)
+    public function decrypt(DecryptRequest $encryptRequest, string $keyName, string $keyVersion): KeyOperationResult
     {
         $request = new Request(
             'POST',
             sprintf('keys/%s/%s/decrypt?api-version=%s', $keyName, $keyVersion, self::API_VERSION),
             [],
-            \GuzzleHttp\json_encode($encryptRequest->getArray())
+            (string) json_encode($encryptRequest->getArray())
         );
         return new KeyOperationResult($this->sendRequest($request));
     }
 
-    /**
-     * @param SetSecretRequest $setSecretRequest
-     * @param string $secretName
-     * @return SecretBundle
-     */
-    public function setSecret(SetSecretRequest $setSecretRequest, $secretName)
+    public function setSecret(SetSecretRequest $setSecretRequest, string $secretName): SecretBundle
     {
         $request = new Request(
             'PUT',
             sprintf('secrets/%s?api-version=%s', $secretName, self::API_VERSION),
             [],
-            \GuzzleHttp\json_encode($setSecretRequest->getArray())
+            (string) json_encode($setSecretRequest->getArray())
         );
         return new SecretBundle($this->sendRequest($request));
     }
 
-    /**
-     * @param string $secretName
-     * @param string $secretVersion
-     * @return SecretBundle
-     */
-    public function getSecret($secretName, $secretVersion = null)
+    public function getSecret(string $secretName, ?string $secretVersion = null): SecretBundle
     {
         if ($secretVersion === null) {
             $request = new Request(
@@ -170,12 +147,7 @@ class Client
         return new SecretBundle($this->sendRequest($request));
     }
 
-
-    /**
-     * @param int $maxResults
-     * @return SecretListResult
-     */
-    public function getSecrets($maxResults = self::DEFAULT_PAGE_SIZE)
+    public function getSecrets(int $maxResults = self::DEFAULT_PAGE_SIZE): SecretListResult
     {
         $request = new Request(
             'GET',
@@ -185,10 +157,9 @@ class Client
     }
 
     /**
-     * @param int $pageSize
      * @return SecretItem[]
      */
-    public function getAllSecrets($pageSize = self::DEFAULT_PAGE_SIZE)
+    public function getAllSecrets(int $pageSize = self::DEFAULT_PAGE_SIZE): array
     {
         $listResult = $this->getSecrets($pageSize);
         $items = $listResult->getValue();
@@ -203,11 +174,7 @@ class Client
         return $items;
     }
 
-    /**
-     * @param $secretName
-     * @return DeletedSecretBundle
-     */
-    public function deleteSecret($secretName)
+    public function deleteSecret(string $secretName): DeletedSecretBundle
     {
         $request = new Request(
             'DELETE',
