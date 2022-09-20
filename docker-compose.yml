@@ -23,11 +23,11 @@ services:
     volumes:
       - ./:/code
 
-  tests74:
+  ci:
     <<: *tests
     build:
       context: .
-      dockerfile: Dockerfile74
+      dockerfile: Dockerfile
     command: ["/code/docker/tests-cc.sh"]
     volumes:
       - ./build/logs/:/code/build/logs/

@@ -16,7 +16,7 @@ use RuntimeException;
 
 class ClientFunctionalTest extends TestCase
 {
-    public function setUp()
+    public function setUp(): void
     {
         $envs = ['TEST_TENANT_ID', 'TEST_CLIENT_ID', 'TEST_CLIENT_SECRET', 'TEST_KEY_VAULT_URL',
             'TEST_KEY_NAME', 'TEST_KEY_VERSION'];

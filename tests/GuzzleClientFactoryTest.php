@@ -130,7 +130,7 @@ class GuzzleClientFactoryTest extends TestCase
             $client->get('');
             self::fail('Must throw exception');
         } catch (\GuzzleHttp\Exception\ClientException $e) {
-            self::assertContains('Client error: `GET https://example.com` resulted in a `403 Forbidden` response', $e->getMessage());
+            self::assertStringContainsString('Client error: `GET https://example.com` resulted in a `403 Forbidden` response', $e->getMessage());
         }
 
         self::assertCount(1, $requestHistory);
@@ -170,7 +170,7 @@ class GuzzleClientFactoryTest extends TestCase
             $client->get('');
             self::fail('Must throw exception');
         } catch (ServerException $e) {
-            self::assertContains('Server error: `GET https://example.com` resulted in a `501 Not Implemented`', $e->getMessage());
+            self::assertStringContainsString('Server error: `GET https://example.com` resulted in a `501 Not Implemented`', $e->getMessage());
         }
 
         self::assertCount(3, $requestHistory);
