@@ -17,6 +17,7 @@ use Symfony\Component\Validator\Constraints\Range;
 use Symfony\Component\Validator\Constraints\Url;
 use Symfony\Component\Validator\ConstraintViolationInterface;
 use Symfony\Component\Validator\Validation;
+use Throwable;
 
 class GuzzleClientFactory
 {
@@ -76,10 +77,10 @@ class GuzzleClientFactory
     private function createDefaultDecider(int $maxRetries): callable
     {
         return function (
-            $retries,
+            int $retries,
             RequestInterface $request,
             ?ResponseInterface $response = null,
-            $error = null
+            ?Throwable $error = null
         ) use ($maxRetries) {
             if ($retries >= $maxRetries) {
                 return false;
@@ -88,7 +89,7 @@ class GuzzleClientFactory
             if ($response) {
                 $code = $response->getStatusCode();
             } elseif ($error) {
-                $code = (int) $error->getCode();
+                $code = $error->getCode();
             }
             if (($code >= 400) && ($code < 500) && ($code !== self::AZURE_THROTTLING_CODE)) {
                 return false;
