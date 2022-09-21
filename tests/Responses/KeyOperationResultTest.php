@@ -1,7 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Keboola\AzureKeyVaultClient\Tests\Responses;
 
+use Generator;
 use Keboola\AzureKeyVaultClient\Base64UrlEncoder;
 use Keboola\AzureKeyVaultClient\Exception\InvalidResponseException;
 use Keboola\AzureKeyVaultClient\Responses\KeyOperationResult;
@@ -9,7 +12,7 @@ use PHPUnit\Framework\TestCase;
 
 class KeyOperationResultTest extends TestCase
 {
-    public function testValidResponseRaw()
+    public function testValidResponseRaw(): void
     {
         $data = [
             'kid' => 'key id',
@@ -20,7 +23,7 @@ class KeyOperationResultTest extends TestCase
         self::assertEquals('some value', $metadata->getValue(false));
     }
 
-    public function testValidResponseDecode()
+    public function testValidResponseDecode(): void
     {
         $data = [
             'kid' => 'key id',
@@ -33,31 +36,27 @@ class KeyOperationResultTest extends TestCase
 
     /**
      * @dataProvider invalidResponseProvider
-     * @param array $data
-     * @param string $expectedMessage
      */
-    public function testInvalidValidResponse(array $data, $expectedMessage)
+    public function testInvalidValidResponse(array $data, string $expectedMessage): void
     {
         self::expectException(InvalidResponseException::class);
         self::expectExceptionMessage($expectedMessage);
         new KeyOperationResult($data);
     }
 
-    public function invalidResponseProvider()
+    public function invalidResponseProvider(): Generator
     {
-        return [
-            'missing key' => [
-                [
-                    'value' => 'some value',
-                ],
-                'KeyOperationResult is invalid: {"value":"some value"}'
+        yield 'missing key' => [
+            [
+                'value' => 'some value',
             ],
-            'missing value' => [
-                [
-                    'kid' => 'key id',
-                ],
-                'KeyOperationResult is invalid: {"kid":"key id"}'
+            'KeyOperationResult is invalid: {"value":"some value"}',
+        ];
+        yield 'missing value' => [
+            [
+                'kid' => 'key id',
             ],
+            'KeyOperationResult is invalid: {"kid":"key id"}',
         ];
     }
 }

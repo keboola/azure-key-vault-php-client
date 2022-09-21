@@ -1,32 +1,28 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Keboola\AzureKeyVaultClient\Responses;
 
 use Keboola\AzureKeyVaultClient\Exception\InvalidResponseException;
 
 class SecretBundle extends SecretItem
 {
-    /** @var string */
-    protected $kid;
+    protected string $kid;
+    protected string $value;
 
-    /** @var string */
-    protected $value;
-
-    /**
-     * @param array $data
-     */
     public function __construct(array $data)
     {
         parent::__construct($data);
         if (isset($data['value'])) {
-            $this->value = (string)$data['value'];
+            $this->value = (string) $data['value'];
         }
         if (isset($data['kid'])) {
             $this->kid = (string) $data['kid'];
         }
     }
 
-    protected function validateData(array $data)
+    protected function validateData(array $data): void
     {
         if (!isset($data['value'])) {
             throw new InvalidResponseException('SecretBundle is invalid: ' . json_encode($data));
@@ -34,26 +30,17 @@ class SecretBundle extends SecretItem
         parent::validateData($data);
     }
 
-    /**
-     * @return string
-     */
-    public function getKid()
+    public function getKid(): string
     {
         return $this->kid;
     }
 
-    /**
-     * @return string
-     */
-    public function getValue()
+    public function getValue(): string
     {
         return $this->value;
     }
 
-    /**
-     * @return array
-     */
-    protected function getIdParts()
+    protected function getIdParts(): array
     {
         $parts = explode('/', $this->id);
         if (count($parts) < 4) {
@@ -62,18 +49,12 @@ class SecretBundle extends SecretItem
         return $parts;
     }
 
-    /**
-     * @return string
-     */
-    public function getName()
+    public function getName(): string
     {
         return (string) $this->getIdParts()[count($this->getIdParts()) - 2];
     }
 
-    /**
-     * @return string
-     */
-    public function getVersion()
+    public function getVersion(): string
     {
         return (string) $this->getIdParts()[count($this->getIdParts()) - 1];
     }

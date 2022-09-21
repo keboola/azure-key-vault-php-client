@@ -1,17 +1,16 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Keboola\AzureKeyVaultClient\Authentication;
 
 use Keboola\AzureKeyVaultClient\GuzzleClientFactory;
 
 interface AuthenticatorInterface
 {
-    public function __construct(GuzzleClientFactory $clientFactory, $resource);
+    public function __construct(GuzzleClientFactory $clientFactory, string $resource);
 
-    /**
-     * @return string
-     */
-    public function getAuthenticationToken();
+    public function getAuthenticationToken(): string;
 
-    public function checkUsability();
+    public function checkUsability(): void;
 }

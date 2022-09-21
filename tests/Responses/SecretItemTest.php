@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Keboola\AzureKeyVaultClient\Tests\Responses;
 
 use Keboola\AzureKeyVaultClient\Exception\InvalidResponseException;
@@ -8,14 +10,14 @@ use PHPUnit\Framework\TestCase;
 
 class SecretItemTest extends TestCase
 {
-    public function testSecretItemAccessors()
+    public function testSecretItemAccessors(): void
     {
         $secretItem = new SecretItem([
             'attributes' => [
                 'created' => 1590586213,
                 'enabled' => true,
-                'exp' => '1590586214',
-                'nbf' => '1590586215',
+                'exp' => 1590586214,
+                'nbf' => 1590586215,
                 'recoveryLevel' => 'Purgeable',
                 'updated' => 1590586213,
             ],
@@ -24,17 +26,18 @@ class SecretItemTest extends TestCase
             'managed' => false,
             'tags' => [
                 'a' => 'b',
-                'c' => 'd'
+                'c' => 'd',
             ],
         ]);
-        self::assertEquals([
+        self::assertEquals(
+            [
             'created' => 1590586213,
             'enabled' => true,
             'exp' => 1590586214,
             'nbf' => 1590586215,
             'recoveryLevel' => 'Purgeable',
             'updated' => 1590586213,
-        ],
+            ],
             $secretItem->getAttributes()->getArray()
         );
         self::assertEquals('plain', $secretItem->getContentType());
@@ -50,14 +53,14 @@ class SecretItemTest extends TestCase
         self::assertEquals('foo', $secretItem->getName());
     }
 
-    public function testSecretItemInvalid()
+    public function testSecretItemInvalid(): void
     {
         self::expectException(InvalidResponseException::class);
         self::expectExceptionMessage('SecretItem is invalid: []');
         new SecretItem([]);
     }
 
-    public function testSecretItemInvalidId()
+    public function testSecretItemInvalidId(): void
     {
         $secretItem = new SecretItem([
             'attributes' => [],

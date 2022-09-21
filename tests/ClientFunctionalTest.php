@@ -1,11 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Keboola\AzureKeyVaultClient\Tests;
 
 use Keboola\AzureKeyVaultClient\Authentication\AuthenticatorFactory;
 use Keboola\AzureKeyVaultClient\Client;
 use Keboola\AzureKeyVaultClient\GuzzleClientFactory;
 use Keboola\AzureKeyVaultClient\Requests\DecryptRequest;
+use Keboola\AzureKeyVaultClient\Requests\EncryptDecryptRequest;
 use Keboola\AzureKeyVaultClient\Requests\EncryptRequest;
 use Keboola\AzureKeyVaultClient\Requests\SecretAttributes;
 use Keboola\AzureKeyVaultClient\Requests\SetSecretRequest;
@@ -34,31 +37,31 @@ class ClientFunctionalTest extends TestCase
         $this->clearSecrets();
     }
 
-    private function clearSecrets()
+    private function clearSecrets(): void
     {
         $client = new Client(
             new GuzzleClientFactory(new NullLogger()),
             new AuthenticatorFactory(),
-            getenv('TEST_KEY_VAULT_URL')
+            (string) getenv('TEST_KEY_VAULT_URL')
         );
         foreach ($client->getAllSecrets() as $secret) {
             $client->deleteSecret($secret->getName());
         }
     }
 
-    public function testEncryptDecrypt()
+    public function testEncryptDecrypt(): void
     {
         $payload = ')_+\\(*&^%$#@!)/"\'junk';
         $logger = new TestLogger();
         $client = new Client(
             new GuzzleClientFactory($logger),
             new AuthenticatorFactory(),
-            getenv('TEST_KEY_VAULT_URL')
+            (string) getenv('TEST_KEY_VAULT_URL')
         );
         $result = $client->encrypt(
-            new EncryptRequest(EncryptRequest::RSA_OAEP_256, $payload),
-            getenv('TEST_KEY_NAME'),
-            getenv('TEST_KEY_VERSION')
+            new EncryptRequest(EncryptDecryptRequest::RSA_OAEP_256, $payload),
+            (string) getenv('TEST_KEY_NAME'),
+            (string) getenv('TEST_KEY_VERSION')
         );
         self::assertNotEquals($payload, $result->getValue(false));
         self::assertNotEquals($payload, $result->getValue(true));
@@ -69,9 +72,9 @@ class ClientFunctionalTest extends TestCase
             $result->getKid()
         );
         $result = $client->decrypt(
-            new DecryptRequest(DecryptRequest::RSA_OAEP_256, $result->getValue(false)),
-            getenv('TEST_KEY_NAME'),
-            getenv('TEST_KEY_VERSION')
+            new DecryptRequest(EncryptDecryptRequest::RSA_OAEP_256, $result->getValue(false)),
+            (string) getenv('TEST_KEY_NAME'),
+            (string) getenv('TEST_KEY_VERSION')
         );
         self::assertEquals($payload, $result->getValue(true));
         self::assertEquals(
@@ -81,14 +84,14 @@ class ClientFunctionalTest extends TestCase
         );
     }
 
-    public function testSetGetSecret()
+    public function testSetGetSecret(): void
     {
         $payload = ')_+\\(*&^%$#@!)/"\'junk';
         $logger = new TestLogger();
         $client = new Client(
             new GuzzleClientFactory($logger),
             new AuthenticatorFactory(),
-            getenv('TEST_KEY_VAULT_URL')
+            (string) getenv('TEST_KEY_VAULT_URL')
         );
         $result = $client->setSecret(
             new SetSecretRequest($payload, new SecretAttributes(), null, ['a' => 'b', 'c' => 'd']),
@@ -101,14 +104,14 @@ class ClientFunctionalTest extends TestCase
         self::assertEquals(['a' => 'b', 'c' => 'd'], $getResult->getTags());
     }
 
-    public function testGetSecretDefaultVersion()
+    public function testGetSecretDefaultVersion(): void
     {
         $payload = ')_+\\(*&^%$#@!)/"\'junk';
         $logger = new TestLogger();
         $client = new Client(
             new GuzzleClientFactory($logger),
             new AuthenticatorFactory(),
-            getenv('TEST_KEY_VAULT_URL')
+            (string) getenv('TEST_KEY_VAULT_URL')
         );
         $secretName = uniqid('my-secret');
         $client->setSecret(
@@ -127,12 +130,12 @@ class ClientFunctionalTest extends TestCase
         self::assertEquals(['a' => 'b', 'c' => 'd'], $getResult->getTags());
     }
 
-    public function testGetSecrets()
+    public function testGetSecrets(): void
     {
         $client = new Client(
             new GuzzleClientFactory(new NullLogger()),
             new AuthenticatorFactory(),
-            getenv('TEST_KEY_VAULT_URL')
+            (string) getenv('TEST_KEY_VAULT_URL')
         );
         $client->setSecret(new SetSecretRequest('test1', new SecretAttributes()), uniqid('test-secret1'));
         $client->setSecret(new SetSecretRequest('test2', new SecretAttributes()), uniqid('test-secret2'));

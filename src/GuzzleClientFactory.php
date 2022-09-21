@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Keboola\AzureKeyVaultClient;
 
 use GuzzleHttp\Client as GuzzleClient;
@@ -15,36 +17,28 @@ use Symfony\Component\Validator\Constraints\Range;
 use Symfony\Component\Validator\Constraints\Url;
 use Symfony\Component\Validator\ConstraintViolationInterface;
 use Symfony\Component\Validator\Validation;
+use Throwable;
 
 class GuzzleClientFactory
 {
-    const DEFAULT_USER_AGENT = 'Azure PHP Client';
-    const DEFAULT_BACKOFF_RETRIES = 10;
-    const AZURE_THROTTLING_CODE = 429;
-    const ALLOWED_OPTIONS = ['backoffMaxTries', 'userAgent', 'handler', 'logger'];
+    private const DEFAULT_USER_AGENT = 'Azure PHP Client';
+    private const DEFAULT_BACKOFF_RETRIES = 10;
+    private const AZURE_THROTTLING_CODE = 429;
+    private const ALLOWED_OPTIONS = ['backoffMaxTries', 'userAgent', 'handler', 'logger'];
 
-    /** @var LoggerInterface */
-    private $logger;
+    private LoggerInterface $logger;
 
     public function __construct(LoggerInterface $logger)
     {
         $this->logger = $logger;
     }
 
-    /**
-     * @return LoggerInterface
-     */
-    public function getLogger()
+    public function getLogger(): LoggerInterface
     {
         return $this->logger;
     }
 
-    /**
-     * @param string $baseUrl
-     * @param array $options
-     * @return GuzzleClient
-     */
-    public function getClient($baseUrl, array $options = [])
+    public function getClient(string $baseUrl, array $options = []): GuzzleClient
     {
         $validator = Validation::createValidator();
         $errors = $validator->validate($baseUrl, [new Url()]);
@@ -80,22 +74,22 @@ class GuzzleClientFactory
         return $this->initClient($baseUrl, $options);
     }
 
-    private function createDefaultDecider($maxRetries)
+    private function createDefaultDecider(int $maxRetries): callable
     {
         return function (
-            $retries,
+            int $retries,
             RequestInterface $request,
-            ResponseInterface $response = null,
-            $error = null
+            ?ResponseInterface $response = null,
+            ?Throwable $error = null
         ) use ($maxRetries) {
             if ($retries >= $maxRetries) {
                 return false;
             }
             $code = null;
             if ($response) {
-                $code = (int) $response->getStatusCode();
+                $code = $response->getStatusCode();
             } elseif ($error) {
-                $code = (int) $error->getCode();
+                $code = $error->getCode();
             }
             if (($code >= 400) && ($code < 500) && ($code !== self::AZURE_THROTTLING_CODE)) {
                 return false;
@@ -104,7 +98,9 @@ class GuzzleClientFactory
                 $this->logger->warning(
                     sprintf(
                         'Request failed (%s), retrying (%s of %s)',
-                        empty($error) ? $response->getBody()->getContents() : $error->getMessage(),
+                        empty($error) ?
+                            (empty($response) ? 'No error' : $response->getBody()->getContents())
+                            : $error->getMessage(),
                         $retries,
                         $maxRetries
                     )
@@ -115,14 +111,10 @@ class GuzzleClientFactory
         };
     }
 
-    private function initClient($url, array $options = [])
+    private function initClient(string $url, array $options = []): GuzzleClient
     {
         // Initialize handlers (start with those supplied in constructor)
-        if (isset($options['handler']) && $options['handler'] instanceof HandlerStack) {
-            $handlerStack = HandlerStack::create($options['handler']);
-        } else {
-            $handlerStack = HandlerStack::create();
-        }
+        $handlerStack = HandlerStack::create($options['handler'] ?? null);
         // Set exponential backoff
         $handlerStack->push(Middleware::retry($this->createDefaultDecider($options['backoffMaxTries'])));
 

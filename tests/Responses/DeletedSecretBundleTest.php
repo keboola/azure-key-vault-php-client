@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Keboola\AzureKeyVaultClient\Tests\Responses;
 
 use Keboola\AzureKeyVaultClient\Exception\InvalidResponseException;
@@ -8,14 +10,14 @@ use PHPUnit\Framework\TestCase;
 
 class DeletedSecretBundleTest extends TestCase
 {
-    public function testDeletedSecretBundleFull()
+    public function testDeletedSecretBundleFull(): void
     {
         $deletedSecretBundle = new DeletedSecretBundle([
             'attributes' => [
                 'created' => 1590586213,
                 'enabled' => true,
-                'exp' => '1590586214',
-                'nbf' => '1590586215',
+                'exp' => 1590586214,
+                'nbf' => 1590586215,
                 'recoveryLevel' => 'Purgeable',
                 'updated' => 1590586213,
             ],
@@ -25,21 +27,22 @@ class DeletedSecretBundleTest extends TestCase
             'managed' => false,
             'tags' => [
                 'a' => 'b',
-                'c' => 'd'
+                'c' => 'd',
             ],
             'value' => 'so-secret',
             'recoveryId' => 'https://test.azure-int.net/deletedsecrets/foo',
             'deletedDate' => 1493938433,
             'scheduledPurgeDate' => 1501714433,
         ]);
-        self::assertEquals([
+        self::assertEquals(
+            [
             'created' => 1590586213,
             'enabled' => true,
             'exp' => 1590586214,
             'nbf' => 1590586215,
             'recoveryLevel' => 'Purgeable',
             'updated' => 1590586213,
-        ],
+            ],
             $deletedSecretBundle->getAttributes()->getArray()
         );
         self::assertEquals('plain', $deletedSecretBundle->getContentType());
@@ -61,34 +64,35 @@ class DeletedSecretBundleTest extends TestCase
         self::assertEquals(1501714433, $deletedSecretBundle->getScheduledPurgeDate());
     }
 
-    public function testDeletedSecretBundleInvalid()
+    public function testDeletedSecretBundleInvalid(): void
     {
         self::expectException(InvalidResponseException::class);
         self::expectExceptionMessage('DeletedSecretBundle is invalid: []');
         new DeletedSecretBundle([]);
     }
 
-    public function testDeletedSecretBundleMinimal()
+    public function testDeletedSecretBundleMinimal(): void
     {
         $deletedSecretBundle = new DeletedSecretBundle([
             'attributes' => [
                 'created' => 1590586213,
                 'enabled' => true,
-                'exp' => '1590586214',
-                'nbf' => '1590586215',
+                'exp' => 1590586214,
+                'nbf' => 1590586215,
                 'recoveryLevel' => 'Purgeable',
                 'updated' => 1590586213,
             ],
             'id' => 'https://test.vault.azure.net/secrets/foo/53af0dad94f248',
         ]);
-        self::assertEquals([
+        self::assertEquals(
+            [
             'created' => 1590586213,
             'enabled' => true,
             'exp' => 1590586214,
             'nbf' => 1590586215,
             'recoveryLevel' => 'Purgeable',
             'updated' => 1590586213,
-        ],
+            ],
             $deletedSecretBundle->getAttributes()->getArray()
         );
         self::assertEquals('https://test.vault.azure.net/secrets/foo/53af0dad94f248', $deletedSecretBundle->getId());

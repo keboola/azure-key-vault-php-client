@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Keboola\AzureKeyVaultClient\Tests;
 
 use GuzzleHttp\Psr7\Response;
@@ -7,7 +9,7 @@ use PHPUnit\Framework\TestCase;
 
 abstract class BaseTest extends TestCase
 {
-    public function  setUp(): void
+    public function setUp(): void
     {
         parent::setUp();
         putenv('AZURE_TENANT_ID=tenant123');
@@ -17,7 +19,7 @@ abstract class BaseTest extends TestCase
         putenv('AZURE_ENVIRONMENT=');
     }
 
-    protected function getSampleArmMetadata()
+    protected function getSampleArmMetadata(): array
     {
         return [
             [
@@ -26,7 +28,7 @@ abstract class BaseTest extends TestCase
                     'loginEndpoint' => 'https://login.windows.net/',
                     'audiences' => [
                         'https://management.core.windows.net/',
-                        'https://management.azure.com/'
+                        'https://management.azure.com/',
                     ],
                     'tenant' => 'common',
                     'identityProvider' => 'AAD',
@@ -46,6 +48,7 @@ abstract class BaseTest extends TestCase
                 ],
                 'batch' => 'https://batch.core.windows.net/',
                 'resourceManager' => 'https://management.azure.com/',
+                // phpcs:ignore Generic.Files.LineLength
                 'vmImageAliasDoc' => 'https://raw.githubusercontent.com/Azure/azure-rest-api-specs/master/arm-compute/quickstart-templates/aliases.json',
                 'activeDirectoryDataLake' => 'https://datalake.azure.net/',
                 'sqlManagement' => 'https://management.core.windows.net:8443/',
@@ -54,13 +57,13 @@ abstract class BaseTest extends TestCase
         ];
     }
 
-    protected function getMockAuthResponses()
+    protected function getMockAuthResponses(): array
     {
         return [
             new Response(
                 200,
                 ['Content-Type' => 'application/json'],
-                json_encode($this->getSampleArmMetadata())
+                (string) json_encode($this->getSampleArmMetadata())
             ),
             new Response(
                 200,

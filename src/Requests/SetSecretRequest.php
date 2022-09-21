@@ -1,42 +1,32 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Keboola\AzureKeyVaultClient\Requests;
 
 class SetSecretRequest
 {
-    /** @var SecretAttributes */
-    private $attributes;
+    private SecretAttributes $attributes;
+    private ?string $contentType;
+    private ?array $tags;
+    private string $value;
 
-    /** @var string */
-    private $contentType;
-
-    /** @var string */
-    private $tags;
-
-    /** @var string */
-    private $value;
-
-    /**
-     * @param string $value
-     * @param SecretAttributes $attributes
-     * @param string $contentType
-     * @param array $tags
-     */
-    public function __construct($value, SecretAttributes $attributes, $contentType = null, $tags = null)
-    {
+    public function __construct(
+        string $value,
+        SecretAttributes $attributes,
+        ?string $contentType = null,
+        ?array $tags = null
+    ) {
         $this->value = $value;
         $this->attributes = $attributes;
         $this->contentType = $contentType;
         $this->tags = $tags;
     }
 
-    /**
-     * @return array
-     */
-    public function getArray()
+    public function getArray(): array
     {
         $result = [
-            'value' => (string) $this->value,
+            'value' => $this->value,
         ];
         if ($this->attributes->getArray()) {
             $result['attributes'] = $this->attributes->getArray();

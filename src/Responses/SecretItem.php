@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Keboola\AzureKeyVaultClient\Responses;
 
 use Keboola\AzureKeyVaultClient\Exception\InvalidResponseException;
@@ -7,20 +9,11 @@ use Keboola\AzureKeyVaultClient\Requests\SecretAttributes;
 
 class SecretItem
 {
-    /** @var SecretAttributes */
-    protected $attributes;
-
-    /** @var string */
-    protected $contentType;
-
-    /** @var string */
-    protected $id;
-
-    /** @var bool */
-    protected $managed;
-
-    /** @var array */
-    protected $tags;
+    protected SecretAttributes $attributes;
+    protected string $contentType;
+    protected string $id;
+    protected bool $managed;
+    protected array $tags;
 
     /**
      * @param array $data
@@ -42,57 +35,39 @@ class SecretItem
         }
     }
 
-    protected function validateData(array $data)
+    protected function validateData(array $data): void
     {
         if (!isset($data['id']) || !isset($data['attributes'])) {
             throw new InvalidResponseException('SecretItem is invalid: ' . json_encode($data));
         }
     }
 
-    /**
-     * @return SecretAttributes
-     */
-    public function getAttributes()
+    public function getAttributes(): SecretAttributes
     {
         return $this->attributes;
     }
 
-    /**
-     * @return string
-     */
-    public function getContentType()
+    public function getContentType(): string
     {
         return $this->contentType;
     }
 
-    /**
-     * @return string
-     */
-    public function getId()
+    public function getId(): string
     {
         return $this->id;
     }
 
-    /**
-     * @return bool
-     */
-    public function isManaged()
+    public function isManaged(): bool
     {
         return $this->managed;
     }
 
-    /**
-     * @return array
-     */
-    public function getTags()
+    public function getTags(): array
     {
         return $this->tags;
     }
 
-    /**
-     * @return array
-     */
-    protected function getIdParts()
+    protected function getIdParts(): array
     {
         $parts = explode('/', $this->id);
         if (count($parts) < 3) {
@@ -101,10 +76,7 @@ class SecretItem
         return $parts;
     }
 
-    /**
-     * @return string
-     */
-    public function getName()
+    public function getName(): string
     {
         return (string) $this->getIdParts()[count($this->getIdParts()) - 1];
     }

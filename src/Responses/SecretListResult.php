@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Keboola\AzureKeyVaultClient\Responses;
 
 use Keboola\AzureKeyVaultClient\Exception\InvalidResponseException;
@@ -7,14 +9,9 @@ use Keboola\AzureKeyVaultClient\Exception\InvalidResponseException;
 class SecretListResult
 {
     /** @var SecretItem[] */
-    private $value = [];
+    private array $value = [];
+    private ?string $nextLink = null;
 
-    /** @var string */
-    private $nextLink;
-
-    /**
-     * @param array $data
-     */
     public function __construct(array $data)
     {
         if (!isset($data['value']) || !is_array($data['value'])) {
@@ -31,15 +28,12 @@ class SecretListResult
     /**
      * @return SecretItem[]
      */
-    public function getValue()
+    public function getValue(): array
     {
         return $this->value;
     }
 
-    /**
-     * @return string
-     */
-    public function getNextLink()
+    public function getNextLink(): ?string
     {
         return $this->nextLink;
     }

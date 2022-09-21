@@ -1,18 +1,17 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Keboola\AzureKeyVaultClient\Tests\Requests;
 
-use Keboola\AzureKeyVaultClient\Authentication\AuthenticatorFactory;
 use Keboola\AzureKeyVaultClient\Exception\ClientException;
-use Keboola\AzureKeyVaultClient\GuzzleClientFactory;
 use Keboola\AzureKeyVaultClient\Requests\DecryptRequest;
 use Keboola\AzureKeyVaultClient\Requests\EncryptRequest;
 use PHPUnit\Framework\TestCase;
-use Psr\Log\NullLogger;
 
 class EncryptDecryptRequestTest extends TestCase
 {
-    public function testValidEncryptRequest()
+    public function testValidEncryptRequest(): void
     {
         $request = new EncryptRequest('RSA-OAEP', 'foo');
         self::assertEquals(
@@ -24,14 +23,14 @@ class EncryptDecryptRequestTest extends TestCase
         );
     }
 
-    public function testInvalidEncryptAlgorithm()
+    public function testInvalidEncryptAlgorithm(): void
     {
         self::expectException(ClientException::class);
         self::expectExceptionMessage('Invalid algorithm "bar"');
         new EncryptRequest('bar', 'foo');
     }
 
-    public function testValidDecryptRequest()
+    public function testValidDecryptRequest(): void
     {
         $request = new DecryptRequest('RSA-OAEP', 'foo');
         self::assertEquals(
@@ -43,7 +42,7 @@ class EncryptDecryptRequestTest extends TestCase
         );
     }
 
-    public function testInvalidDecryptAlgorithm()
+    public function testInvalidDecryptAlgorithm(): void
     {
         self::expectException(ClientException::class);
         self::expectExceptionMessage('Invalid algorithm "bar"');

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Keboola\AzureKeyVaultClient\Tests\Authentication;
 
 use GuzzleHttp\Handler\MockHandler;
@@ -16,7 +18,7 @@ use Psr\Log\Test\TestLogger;
 
 class ClientCredentialsEnvironmentAuthenticatorTest extends BaseTest
 {
-    public function testCheckUsabilityFailureMissingTenant()
+    public function testCheckUsabilityFailureMissingTenant(): void
     {
         $authenticator = new ClientCredentialsEnvironmentAuthenticator(
             new GuzzleClientFactory(new NullLogger()),
@@ -28,7 +30,7 @@ class ClientCredentialsEnvironmentAuthenticatorTest extends BaseTest
         $authenticator->checkUsability();
     }
 
-    public function testCheckUsabilityFailureMissingClient()
+    public function testCheckUsabilityFailureMissingClient(): void
     {
         $authenticator = new ClientCredentialsEnvironmentAuthenticator(
             new GuzzleClientFactory(new NullLogger()),
@@ -40,7 +42,7 @@ class ClientCredentialsEnvironmentAuthenticatorTest extends BaseTest
         $authenticator->checkUsability();
     }
 
-    public function testCheckUsabilityFailureMissingSecret()
+    public function testCheckUsabilityFailureMissingSecret(): void
     {
         $authenticator = new ClientCredentialsEnvironmentAuthenticator(
             new GuzzleClientFactory(new NullLogger()),
@@ -52,7 +54,7 @@ class ClientCredentialsEnvironmentAuthenticatorTest extends BaseTest
         $authenticator->checkUsability();
     }
 
-    public function testValidEnvironmentSettings()
+    public function testValidEnvironmentSettings(): void
     {
         $logger = new TestLogger();
         $authenticator = new ClientCredentialsEnvironmentAuthenticator(
@@ -68,14 +70,14 @@ class ClientCredentialsEnvironmentAuthenticatorTest extends BaseTest
         ));
     }
 
-    public function testValidFullEnvironmentSettings()
+    public function testValidFullEnvironmentSettings(): void
     {
         putenv('AZURE_AD_RESOURCE=https://example.com');
         putenv('AZURE_ENVIRONMENT=123');
         $logger = new TestLogger();
         $authenticator = new ClientCredentialsEnvironmentAuthenticator(
             new GuzzleClientFactory($logger),
-        'https://vault.azure.net'
+            'https://vault.azure.net'
         );
         $authenticator->checkUsability();
         self::assertFalse($logger->hasDebugThatContains(
@@ -86,7 +88,7 @@ class ClientCredentialsEnvironmentAuthenticatorTest extends BaseTest
         ));
     }
 
-    public function testInvalidAdResource()
+    public function testInvalidAdResource(): void
     {
         $logger = new TestLogger();
         putenv('AZURE_AD_RESOURCE=not-an-url');
@@ -95,10 +97,13 @@ class ClientCredentialsEnvironmentAuthenticatorTest extends BaseTest
         self::expectExceptionMessage(
             'Invalid options when creating client: Value "not-an-url" is invalid: This value is not a valid URL.'
         );
-        new ClientCredentialsEnvironmentAuthenticator(new GuzzleClientFactory($logger), 'https://vault.azure.net');
+        new ClientCredentialsEnvironmentAuthenticator(
+            new GuzzleClientFactory($logger),
+            'https://vault.azure.net'
+        );
     }
 
-    public function testAuthenticate()
+    public function testAuthenticate(): void
     {
         $mock = new MockHandler($this->getMockAuthResponses());
         $requestHistory = [];
@@ -106,7 +111,7 @@ class ClientCredentialsEnvironmentAuthenticatorTest extends BaseTest
         $stack = HandlerStack::create($mock);
         $stack->push($history);
         $factory = new GuzzleClientFactory(new NullLogger());
-        $client = $factory->getClient( 'https://example.com', ['handler' => $stack]);
+        $client = $factory->getClient('https://example.com', ['handler' => $stack]);
 
         $factory = self::getMockBuilder(GuzzleClientFactory::class)
             ->setMethods(['getClient'])
@@ -125,7 +130,10 @@ class ClientCredentialsEnvironmentAuthenticatorTest extends BaseTest
         self::assertEquals('ey....ey', $token);
         /** @var Request $request */
         $request = $requestHistory[0]['request'];
-        self::assertEquals('https://management.azure.com/metadata/endpoints?api-version=2020-01-01', $request->getUri()->__toString());
+        self::assertEquals(
+            'https://management.azure.com/metadata/endpoints?api-version=2020-01-01',
+            $request->getUri()->__toString()
+        );
         self::assertEquals('GET', $request->getMethod());
         self::assertEquals('Azure PHP Client', $request->getHeader('User-Agent')[0]);
         self::assertEquals('application/json', $request->getHeader('Content-type')[0]);
@@ -136,12 +144,13 @@ class ClientCredentialsEnvironmentAuthenticatorTest extends BaseTest
         self::assertEquals('Azure PHP Client', $request->getHeader('User-Agent')[0]);
         self::assertEquals('application/x-www-form-urlencoded', $request->getHeader('Content-type')[0]);
         self::assertEquals(
+            // phpcs:ignore Generic.Files.LineLength
             'grant_type=client_credentials&client_id=client123&client_secret=secret123&resource=https%3A%2F%2Fvault.azure.net',
             $request->getBody()->getContents()
         );
     }
 
-    public function testAuthenticateCustomMetadata()
+    public function testAuthenticateCustomMetadata(): void
     {
         $metadata = $this->getSampleArmMetadata();
         $metadata[0]['authentication']['loginEndpoint'] = 'https://my-custom-login/';
@@ -153,7 +162,7 @@ class ClientCredentialsEnvironmentAuthenticatorTest extends BaseTest
             new Response(
                 200,
                 ['Content-Type' => 'application/json'],
-                json_encode($metadata)
+                (string) json_encode($metadata)
             ),
             new Response(
                 200,
@@ -200,19 +209,20 @@ class ClientCredentialsEnvironmentAuthenticatorTest extends BaseTest
         self::assertEquals('Azure PHP Client', $request->getHeader('User-Agent')[0]);
         self::assertEquals('application/x-www-form-urlencoded', $request->getHeader('Content-type')[0]);
         self::assertEquals(
+            // phpcs:ignore Generic.Files.LineLength
             'grant_type=client_credentials&client_id=client123&client_secret=secret123&resource=https%3A%2F%2Fvault.azure.net',
             $request->getBody()->getContents()
         );
     }
 
-    public function testAuthenticateInvalidMetadata()
+    public function testAuthenticateInvalidMetadata(): void
     {
         putenv('AZURE_ENVIRONMENT=non-existent');
         $mock = new MockHandler([
             new Response(
                 200,
                 ['Content-Type' => 'application/json'],
-                json_encode($this->getSampleArmMetadata())
+                (string) json_encode($this->getSampleArmMetadata())
             ),
         ]);
 
@@ -223,20 +233,15 @@ class ClientCredentialsEnvironmentAuthenticatorTest extends BaseTest
         $factory = new GuzzleClientFactory(new NullLogger());
         $client = $factory->getClient('https://example.com', ['handler' => $stack]);
 
-        $factory = self::getMockBuilder(GuzzleClientFactory::class)
-            ->setMethods(['getClient'])
-            ->setConstructorArgs([new NullLogger()])
-            ->getMock();
-        $factory->method('getClient')
-            ->willReturn($client);
-        /** @var GuzzleClientFactory $factory */
+        $factory = $this->createMock(GuzzleClientFactory::class);
+        $factory->method('getClient')->willReturn($client);
         $auth = new ClientCredentialsEnvironmentAuthenticator($factory, 'https://vault.azure.net');
         self::expectException(ClientException::class);
         self::expectExceptionMessage('Cloud "non-existent" not found in instance metadata');
         $auth->getAuthenticationToken();
     }
 
-    public function testAuthenticateMetadataRetry()
+    public function testAuthenticateMetadataRetry(): void
     {
         $mock = new MockHandler([
             new Response(
@@ -247,7 +252,7 @@ class ClientCredentialsEnvironmentAuthenticatorTest extends BaseTest
             new Response(
                 200,
                 ['Content-Type' => 'application/json'],
-                json_encode($this->getSampleArmMetadata())
+                (string) json_encode($this->getSampleArmMetadata())
             ),
             new Response(
                 200,
@@ -269,21 +274,16 @@ class ClientCredentialsEnvironmentAuthenticatorTest extends BaseTest
         $stack = HandlerStack::create($mock);
         $stack->push($history);
         $factory = new GuzzleClientFactory(new NullLogger());
-        $client = $factory->getClient( 'https://example.com', ['handler' => $stack]);
+        $client = $factory->getClient('https://example.com', ['handler' => $stack]);
 
-        $factory = self::getMockBuilder(GuzzleClientFactory::class)
-            ->setMethods(['getClient'])
-            ->setConstructorArgs([new NullLogger()])
-            ->getMock();
-        $factory->method('getClient')
-            ->willReturn($client);
-        /** @var GuzzleClientFactory $factory */
+        $factory = $this->createMock(GuzzleClientFactory::class);
+        $factory->method('getClient')->willReturn($client);
         $auth = new ClientCredentialsEnvironmentAuthenticator($factory, 'https://vault.azure.net');
         $token = $auth->getAuthenticationToken();
         self::assertEquals('ey....ey', $token);
     }
 
-    public function testAuthenticateMetadataFailure()
+    public function testAuthenticateMetadataFailure(): void
     {
         $mock = new MockHandler([
             new Response(
@@ -300,20 +300,15 @@ class ClientCredentialsEnvironmentAuthenticatorTest extends BaseTest
         $factory = new GuzzleClientFactory(new NullLogger());
         $client = $factory->getClient('https://example.com', ['handler' => $stack]);
 
-        $factory = self::getMockBuilder(GuzzleClientFactory::class)
-            ->setMethods(['getClient'])
-            ->setConstructorArgs([new NullLogger()])
-            ->getMock();
-        $factory->method('getClient')
-            ->willReturn($client);
-        /** @var GuzzleClientFactory $factory */
+        $factory = $this->createMock(GuzzleClientFactory::class);
+        $factory->method('getClient')->willReturn($client);
         $auth = new ClientCredentialsEnvironmentAuthenticator($factory, 'https://vault.azure.net');
         self::expectException(ClientException::class);
-        self::expectExceptionMessage('Failed to get instance metadata: json_decode error: Syntax error');
+        self::expectExceptionMessage('Failed to get instance metadata: Syntax error');
         $auth->getAuthenticationToken();
     }
 
-    public function testAuthenticateMalformedMetadata()
+    public function testAuthenticateMalformedMetadata(): void
     {
         $mock = new MockHandler([
             new Response(
@@ -330,26 +325,21 @@ class ClientCredentialsEnvironmentAuthenticatorTest extends BaseTest
         $factory = new GuzzleClientFactory(new NullLogger());
         $client = $factory->getClient('https://example.com', ['handler' => $stack]);
 
-        $factory = self::getMockBuilder(GuzzleClientFactory::class)
-            ->setMethods(['getClient'])
-            ->setConstructorArgs([new NullLogger()])
-            ->getMock();
-        $factory->method('getClient')
-            ->willReturn($client);
-        /** @var GuzzleClientFactory $factory */
+        $factory = $this->createMock(GuzzleClientFactory::class);
+        $factory->method('getClient')->willReturn($client);
         $auth = new ClientCredentialsEnvironmentAuthenticator($factory, 'https://vault.azure.net');
         self::expectException(ClientException::class);
         self::expectExceptionMessage('Invalid metadata contents: "boo"');
         $auth->getAuthenticationToken();
     }
 
-    public function testAuthenticateTokenError()
+    public function testAuthenticateTokenError(): void
     {
         $mock = new MockHandler([
             new Response(
                 200,
                 ['Content-Type' => 'application/json'],
-                json_encode($this->getSampleArmMetadata())
+                (string) json_encode($this->getSampleArmMetadata())
             ),
             new Response(
                 200,
@@ -365,26 +355,21 @@ class ClientCredentialsEnvironmentAuthenticatorTest extends BaseTest
         $factory = new GuzzleClientFactory(new NullLogger());
         $client = $factory->getClient('https://example.com', ['handler' => $stack]);
 
-        $factory = self::getMockBuilder(GuzzleClientFactory::class)
-            ->setMethods(['getClient'])
-            ->setConstructorArgs([new NullLogger()])
-            ->getMock();
-        $factory->method('getClient')
-            ->willReturn($client);
-        /** @var GuzzleClientFactory $factory */
+        $factory = $this->createMock(GuzzleClientFactory::class);
+        $factory->method('getClient')->willReturn($client);
         $auth = new ClientCredentialsEnvironmentAuthenticator($factory, 'https://vault.azure.net');
         self::expectException(ClientException::class);
-        self::expectExceptionMessage('Failed to get authentication token: json_decode error: Syntax error');
+        self::expectExceptionMessage('Failed to get authentication token: Syntax error');
         $auth->getAuthenticationToken();
     }
 
-    public function testAuthenticateTokenMalformed()
+    public function testAuthenticateTokenMalformed(): void
     {
         $mock = new MockHandler([
             new Response(
                 200,
                 ['Content-Type' => 'application/json'],
-                json_encode($this->getSampleArmMetadata())
+                (string) json_encode($this->getSampleArmMetadata())
             ),
             new Response(
                 200,
@@ -400,13 +385,8 @@ class ClientCredentialsEnvironmentAuthenticatorTest extends BaseTest
         $factory = new GuzzleClientFactory(new NullLogger());
         $client = $factory->getClient('https://example.com', ['handler' => $stack]);
 
-        $factory = self::getMockBuilder(GuzzleClientFactory::class)
-            ->setMethods(['getClient'])
-            ->setConstructorArgs([new NullLogger()])
-            ->getMock();
-        $factory->method('getClient')
-            ->willReturn($client);
-        /** @var GuzzleClientFactory $factory */
+        $factory = $this->createMock(GuzzleClientFactory::class);
+        $factory->method('getClient')->willReturn($client);
         $auth = new ClientCredentialsEnvironmentAuthenticator($factory, 'https://vault.azure.net');
         self::expectException(ClientException::class);
         self::expectExceptionMessage('Access token not provided in response: {"error":"boo"}');
