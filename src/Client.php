@@ -24,6 +24,7 @@ use Keboola\AzureKeyVaultClient\Responses\SecretBundle;
 use Keboola\AzureKeyVaultClient\Responses\SecretItem;
 use Keboola\AzureKeyVaultClient\Responses\SecretListResult;
 use Psr\Http\Message\RequestInterface;
+use Psr\Http\Message\ResponseInterface;
 use Psr\Log\LoggerInterface;
 use Throwable;
 
@@ -65,36 +66,35 @@ class Client
             $response = $this->guzzle->send($request);
             return (array) json_decode($response->getBody()->getContents(), true, 512, JSON_THROW_ON_ERROR);
         } catch (JsonException | GuzzleException $e) {
-            $this->handleRequestException($e);
+            if (is_a($e, RequestException::class) && $e->getResponse()) {
+                $this->handleRequestException($e, $e->getResponse());
+            }
             throw new ClientException($e->getMessage(), $e->getCode(), $e);
         }
     }
 
-    private function handleRequestException(Throwable $e): void
+    private function handleRequestException(RequestException $e, ResponseInterface $response): void
     {
-        if (is_a($e, RequestException::class) && $e->getResponse() && is_a($e->getResponse(), Response::class)) {
-            $response = $e->getResponse();
-            try {
-                $data = (array) json_decode($response->getBody()->getContents(), true, 512, JSON_THROW_ON_ERROR);
-            } catch (JsonException $e2) {
-                // throw the original one, we don't care about e2
-                throw new ClientException(trim($e->getMessage()), $response->getStatusCode(), $e);
-            }
-            if (!empty($data['error']) && is_array($data['error']) &&
-                !empty($data['error']['message']) && !empty($data['error']['code'])
-            ) {
-                throw new ClientException(
-                    trim($data['error']['code'] . ': ' . $data['error']['message']),
-                    $response->getStatusCode(),
-                    $e
-                );
-            } elseif (!empty($data['error']) && is_scalar($data['error'])) {
-                throw new ClientException(
-                    trim('Request failed with error: ' . $data['error']),
-                    $response->getStatusCode(),
-                    $e
-                );
-            }
+        try {
+            $data = (array) json_decode($response->getBody()->getContents(), true, 512, JSON_THROW_ON_ERROR);
+        } catch (JsonException $e2) {
+            // throw the original one, we don't care about e2
+            throw new ClientException(trim($e->getMessage()), $response->getStatusCode(), $e);
+        }
+        if (!empty($data['error']) && is_array($data['error']) &&
+            !empty($data['error']['message']) && !empty($data['error']['code'])
+        ) {
+            throw new ClientException(
+                trim($data['error']['code'] . ': ' . $data['error']['message']),
+                $response->getStatusCode(),
+                $e
+            );
+        } elseif (!empty($data['error']) && is_scalar($data['error'])) {
+            throw new ClientException(
+                trim('Request failed with error: ' . $data['error']),
+                $response->getStatusCode(),
+                $e
+            );
         }
     }
 
@@ -104,7 +104,7 @@ class Client
             'POST',
             sprintf('keys/%s/%s/encrypt?api-version=%s', $keyName, $keyVersion, self::API_VERSION),
             [],
-            (string) json_encode($encryptRequest->getArray())
+            (string) json_encode($encryptRequest->getArray(), JSON_THROW_ON_ERROR)
         );
         return new KeyOperationResult($this->sendRequest($request));
     }
@@ -115,7 +115,7 @@ class Client
             'POST',
             sprintf('keys/%s/%s/decrypt?api-version=%s', $keyName, $keyVersion, self::API_VERSION),
             [],
-            (string) json_encode($encryptRequest->getArray())
+            (string) json_encode($encryptRequest->getArray(), JSON_THROW_ON_ERROR)
         );
         return new KeyOperationResult($this->sendRequest($request));
     }
@@ -126,7 +126,7 @@ class Client
             'PUT',
             sprintf('secrets/%s?api-version=%s', $secretName, self::API_VERSION),
             [],
-            (string) json_encode($setSecretRequest->getArray())
+            (string) json_encode($setSecretRequest->getArray(), JSON_THROW_ON_ERROR)
         );
         return new SecretBundle($this->sendRequest($request));
     }

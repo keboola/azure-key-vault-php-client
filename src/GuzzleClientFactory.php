@@ -97,8 +97,9 @@ class GuzzleClientFactory
                 $this->logger->warning(
                     sprintf(
                         'Request failed (%s), retrying (%s of %s)',
-                        empty($error) ? empty($response) ? 'No error' :
-                            $response->getBody()->getContents() : $error->getMessage(),
+                        empty($error) ?
+                            (empty($response) ? 'No error' : $response->getBody()->getContents())
+                            : $error->getMessage(),
                         $retries,
                         $maxRetries
                     )

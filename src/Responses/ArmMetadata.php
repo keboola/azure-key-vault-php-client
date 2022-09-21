@@ -9,9 +9,9 @@ use Keboola\AzureKeyVaultClient\Exception\InvalidResponseException;
 class ArmMetadata
 {
     private string $loginEndpoint;
-    // @phpstan-ignore-next-line
+    // @phpstan-ignore-next-line Not used at the moment
     private string $keyVaultDns;
-    // @phpstan-ignore-next-line
+    // @phpstan-ignore-next-line Not used at the moment
     private string $name;
 
     public function __construct(array $data)
