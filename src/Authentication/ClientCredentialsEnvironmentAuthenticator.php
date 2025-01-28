@@ -16,14 +16,14 @@ use Psr\Log\LoggerInterface;
 
 class ClientCredentialsEnvironmentAuthenticator implements AuthenticatorInterface
 {
-    private const ENV_AZURE_AD_RESOURCE = 'AZURE_AD_RESOURCE';
-    private const ENV_AZURE_ENVIRONMENT = 'AZURE_ENVIRONMENT';
-    private const ENV_AZURE_TENANT_ID = 'AZURE_TENANT_ID';
-    private const ENV_AZURE_CLIENT_ID = 'AZURE_CLIENT_ID';
-    private const ENV_AZURE_CLIENT_SECRET = 'AZURE_CLIENT_SECRET';
+    protected const ENV_AZURE_AD_RESOURCE = 'AZURE_AD_RESOURCE';
+    protected const ENV_AZURE_ENVIRONMENT = 'AZURE_ENVIRONMENT';
+    protected const ENV_AZURE_TENANT_ID = 'AZURE_TENANT_ID';
+    protected const ENV_AZURE_CLIENT_ID = 'AZURE_CLIENT_ID';
+    protected const ENV_AZURE_CLIENT_SECRET = 'AZURE_CLIENT_SECRET';
 
-    private const DEFAULT_ARM_URL = 'https://management.azure.com/metadata/endpoints?api-version=2020-01-01';
-    private const DEFAULT_PUBLIC_CLOUD_NAME = 'AzureCloud';
+    protected const DEFAULT_ARM_URL = 'https://management.azure.com/metadata/endpoints?api-version=2020-01-01';
+    protected const DEFAULT_PUBLIC_CLOUD_NAME = 'AzureCloud';
 
     private Client $client;
     private LoggerInterface $logger;
@@ -40,25 +40,25 @@ class ClientCredentialsEnvironmentAuthenticator implements AuthenticatorInterfac
     public function __construct(GuzzleClientFactory $clientFactory, string $resource)
     {
         $this->logger = $clientFactory->getLogger();
-        $this->armUrl = (string) getenv(self::ENV_AZURE_AD_RESOURCE);
+        $this->armUrl = (string) getenv(static::ENV_AZURE_AD_RESOURCE);
         $this->resource = $resource;
         if (!$this->armUrl) {
-            $this->armUrl = self::DEFAULT_ARM_URL;
+            $this->armUrl = static::DEFAULT_ARM_URL;
             $this->logger->debug(
-                self::ENV_AZURE_AD_RESOURCE . ' environment variable is not specified, falling back to default.'
+                static::ENV_AZURE_AD_RESOURCE . ' environment variable is not specified, falling back to default.'
             );
         }
-        $this->cloudName = (string) getenv(self::ENV_AZURE_ENVIRONMENT);
+        $this->cloudName = (string) getenv(static::ENV_AZURE_ENVIRONMENT);
         if (!$this->cloudName) {
-            $this->cloudName = self::DEFAULT_PUBLIC_CLOUD_NAME;
+            $this->cloudName = static::DEFAULT_PUBLIC_CLOUD_NAME;
             $this->logger->debug(
-                self::ENV_AZURE_ENVIRONMENT . ' environment variable is not specified, falling back to default.'
+                static::ENV_AZURE_ENVIRONMENT . ' environment variable is not specified, falling back to default.'
             );
         }
 
-        $this->tenantId = (string) getenv(self::ENV_AZURE_TENANT_ID);
-        $this->clientId = (string) getenv(self::ENV_AZURE_CLIENT_ID);
-        $this->clientSecret = (string) getenv(self::ENV_AZURE_CLIENT_SECRET);
+        $this->tenantId = (string) getenv(static::ENV_AZURE_TENANT_ID);
+        $this->clientId = (string) getenv(static::ENV_AZURE_CLIENT_ID);
+        $this->clientSecret = (string) getenv(static::ENV_AZURE_CLIENT_SECRET);
         $this->client = $clientFactory->getClient($this->armUrl);
     }
 
@@ -91,7 +91,8 @@ class ClientCredentialsEnvironmentAuthenticator implements AuthenticatorInterfac
     public function checkUsability(): void
     {
         $errors = [];
-        foreach ([self::ENV_AZURE_TENANT_ID, self::ENV_AZURE_CLIENT_ID, self::ENV_AZURE_CLIENT_SECRET] as $envVar) {
+        $envVars = [static::ENV_AZURE_TENANT_ID, static::ENV_AZURE_CLIENT_ID, static::ENV_AZURE_CLIENT_SECRET];
+        foreach ($envVars as $envVar) {
             if (!getenv($envVar)) {
                 $errors[] = sprintf('Environment variable "%s" is not set.', $envVar);
             }
