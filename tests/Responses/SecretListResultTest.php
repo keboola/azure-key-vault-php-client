@@ -61,7 +61,7 @@ class SecretListResultTest extends TestCase
                 'recoveryLevel' => 'Purgeable',
                 'updated' => 1590586213,
             ],
-            $secretItem->getAttributes()->getArray()
+            $secretItem->getAttributes()->getArray(),
         );
         self::assertEquals('plain', $secretItem->getContentType());
         self::assertEquals('https://test.vault.azure.net/secrets/foo', $secretItem->getId());
@@ -71,7 +71,7 @@ class SecretListResultTest extends TestCase
                 'a' => 'b',
                 'c' => 'd',
             ],
-            $secretItem->getTags()
+            $secretItem->getTags(),
         );
         self::assertEquals('foo', $secretItem->getName());
         $secretItem = $secretItemList->getValue()[1];
@@ -84,7 +84,7 @@ class SecretListResultTest extends TestCase
                 'recoveryLevel' => 'Recoverable',
                 'updated' => 290586213,
             ],
-            $secretItem->getAttributes()->getArray()
+            $secretItem->getAttributes()->getArray(),
         );
         self::assertEquals('clumsy', $secretItem->getContentType());
         self::assertEquals('https://test.vault.azure.net/secrets/bar', $secretItem->getId());
@@ -94,7 +94,7 @@ class SecretListResultTest extends TestCase
                 'd' => 'c',
                 'b' => 'a',
             ],
-            $secretItem->getTags()
+            $secretItem->getTags(),
         );
         self::assertEquals('bar', $secretItem->getName());
         self::assertEquals('https://example.com/next', $secretItemList->getNextLink());

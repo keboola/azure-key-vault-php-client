@@ -45,14 +45,14 @@ class ClientCredentialsEnvironmentAuthenticator implements AuthenticatorInterfac
         if (!$this->armUrl) {
             $this->armUrl = static::DEFAULT_ARM_URL;
             $this->logger->debug(
-                static::ENV_AZURE_AD_RESOURCE . ' environment variable is not specified, falling back to default.'
+                static::ENV_AZURE_AD_RESOURCE . ' environment variable is not specified, falling back to default.',
             );
         }
         $this->cloudName = (string) getenv(static::ENV_AZURE_ENVIRONMENT);
         if (!$this->cloudName) {
             $this->cloudName = static::DEFAULT_PUBLIC_CLOUD_NAME;
             $this->logger->debug(
-                static::ENV_AZURE_ENVIRONMENT . ' environment variable is not specified, falling back to default.'
+                static::ENV_AZURE_ENVIRONMENT . ' environment variable is not specified, falling back to default.',
             );
         }
 
@@ -72,7 +72,7 @@ class ClientCredentialsEnvironmentAuthenticator implements AuthenticatorInterfac
         }
         if (!$cloud) {
             throw new ClientException(
-                sprintf('Cloud "%s" not found in instance metadata: ' . json_encode($metadataArray), $cloudName)
+                sprintf('Cloud "%s" not found in instance metadata: ' . json_encode($metadataArray), $cloudName),
             );
         }
         return new ArmMetadata($cloud);
@@ -110,7 +110,7 @@ class ClientCredentialsEnvironmentAuthenticator implements AuthenticatorInterfac
             $metadata = json_decode($response->getBody()->getContents(), true, 512, JSON_THROW_ON_ERROR);
             if (!is_array($metadata)) {
                 throw new InvalidResponseException(
-                    'Invalid metadata contents: ' . json_encode($metadata)
+                    'Invalid metadata contents: ' . json_encode($metadata),
                 );
             }
             return $metadata;
@@ -134,7 +134,7 @@ class ClientCredentialsEnvironmentAuthenticator implements AuthenticatorInterfac
                     'headers' => [
                         'Content-type' => 'application/x-www-form-urlencoded',
                     ],
-                ]
+                ],
             );
             $data = (array) json_decode($response->getBody()->getContents(), true, 512, JSON_THROW_ON_ERROR);
             if (empty($data['access_token']) || !is_scalar($data['access_token'])) {

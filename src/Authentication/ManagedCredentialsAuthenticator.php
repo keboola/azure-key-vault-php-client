@@ -39,13 +39,13 @@ class ManagedCredentialsAuthenticator implements AuthenticatorInterface
                 sprintf(
                     '/metadata/identity/oauth2/token?api-version=%s&format=text&resource=%s',
                     self::API_VERSION,
-                    $this->resource
+                    $this->resource,
                 ),
                 [
                     'headers' => [
                         'Metadata' => 'true',
                     ],
-                ]
+                ],
             );
             $data = (array) json_decode($response->getBody()->getContents(), true, 512, JSON_THROW_ON_ERROR);
             if (empty($data['access_token']) || !is_scalar($data['access_token'])) {
@@ -64,7 +64,7 @@ class ManagedCredentialsAuthenticator implements AuthenticatorInterface
         try {
             $client = $this->clientFactory->getClient(
                 self::INSTANCE_METADATA_SERVICE_ENDPOINT,
-                ['backoffMaxTries' => 1]
+                ['backoffMaxTries' => 1],
             );
             $client->get(
                 sprintf('/metadata?api-version=%s&format=text', self::API_VERSION),
@@ -72,7 +72,7 @@ class ManagedCredentialsAuthenticator implements AuthenticatorInterface
                     'headers' => [
                         'Metadata' => 'true',
                     ],
-                ]
+                ],
             );
         } catch (GuzzleException $e) {
             throw new ClientException('Instance metadata service not available: ' . $e->getMessage(), 0, $e);

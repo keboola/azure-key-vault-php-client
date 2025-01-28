@@ -63,7 +63,7 @@ abstract class BaseTest extends TestCase
             new Response(
                 200,
                 ['Content-Type' => 'application/json'],
-                (string) json_encode($this->getSampleArmMetadata())
+                (string) json_encode($this->getSampleArmMetadata()),
             ),
             new Response(
                 200,
@@ -76,7 +76,7 @@ abstract class BaseTest extends TestCase
                     "not_before": "1589806552",
                     "resource": "https://vault.azure.net",
                     "access_token": "ey....ey"
-                }'
+                }',
             ),
         ];
     }

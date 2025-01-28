@@ -38,7 +38,7 @@ class SecretItemTest extends TestCase
             'recoveryLevel' => 'Purgeable',
             'updated' => 1590586213,
             ],
-            $secretItem->getAttributes()->getArray()
+            $secretItem->getAttributes()->getArray(),
         );
         self::assertEquals('plain', $secretItem->getContentType());
         self::assertEquals('https://test.vault.azure.net/secrets/foo', $secretItem->getId());
@@ -48,7 +48,7 @@ class SecretItemTest extends TestCase
                 'a' => 'b',
                 'c' => 'd',
             ],
-            $secretItem->getTags()
+            $secretItem->getTags(),
         );
         self::assertEquals('foo', $secretItem->getName());
     }

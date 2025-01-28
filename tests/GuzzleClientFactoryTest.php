@@ -84,7 +84,7 @@ class GuzzleClientFactoryTest extends TestCase
             new Response(
                 200,
                 [],
-                'boo'
+                'boo',
             ),
         ]);
 
@@ -96,7 +96,7 @@ class GuzzleClientFactoryTest extends TestCase
         $factory = new GuzzleClientFactory(new NullLogger());
         $client = $factory->getClient(
             'https://example.com',
-            ['handler' => $stack, 'userAgent' => 'test-client']
+            ['handler' => $stack, 'userAgent' => 'test-client'],
         );
         $client->get('');
 
@@ -116,7 +116,7 @@ class GuzzleClientFactoryTest extends TestCase
             new Response(
                 403,
                 [],
-                'boo'
+                'boo',
             ),
         ]);
 
@@ -128,7 +128,7 @@ class GuzzleClientFactoryTest extends TestCase
         $factory = new GuzzleClientFactory(new NullLogger());
         $client = $factory->getClient(
             'https://example.com',
-            ['handler' => $stack, 'userAgent' => 'test-client']
+            ['handler' => $stack, 'userAgent' => 'test-client'],
         );
         try {
             $client->get('');
@@ -136,7 +136,7 @@ class GuzzleClientFactoryTest extends TestCase
         } catch (GuzzleClientException $e) {
             self::assertStringContainsString(
                 'Client error: `GET https://example.com` resulted in a `403 Forbidden` response',
-                $e->getMessage()
+                $e->getMessage(),
             );
         }
 
@@ -152,17 +152,17 @@ class GuzzleClientFactoryTest extends TestCase
             new Response(
                 501,
                 [],
-                'boo'
+                'boo',
             ),
             new Response(
                 501,
                 [],
-                'boo'
+                'boo',
             ),
             new Response(
                 501,
                 [],
-                'boo'
+                'boo',
             ),
         ]);
 
@@ -174,7 +174,7 @@ class GuzzleClientFactoryTest extends TestCase
         $factory = new GuzzleClientFactory(new NullLogger());
         $client = $factory->getClient(
             'https://example.com',
-            ['handler' => $stack, 'userAgent' => 'test-client', 'backoffMaxTries' => 2]
+            ['handler' => $stack, 'userAgent' => 'test-client', 'backoffMaxTries' => 2],
         );
         try {
             $client->get('');
@@ -182,7 +182,7 @@ class GuzzleClientFactoryTest extends TestCase
         } catch (ServerException $e) {
             self::assertStringContainsString(
                 'Server error: `GET https://example.com` resulted in a `501 Not Implemented`',
-                $e->getMessage()
+                $e->getMessage(),
             );
         }
 
@@ -202,17 +202,17 @@ class GuzzleClientFactoryTest extends TestCase
             new Response(
                 501,
                 [],
-                'boo'
+                'boo',
             ),
             new Response(
                 501,
                 [],
-                'boo'
+                'boo',
             ),
             new Response(
                 200,
                 [],
-                'boo'
+                'boo',
             ),
         ]);
 
@@ -224,7 +224,7 @@ class GuzzleClientFactoryTest extends TestCase
         $factory = new GuzzleClientFactory($logger);
         $client = $factory->getClient(
             'https://example.com',
-            ['handler' => $stack, 'userAgent' => 'test-client', 'backoffMaxTries' => 2]
+            ['handler' => $stack, 'userAgent' => 'test-client', 'backoffMaxTries' => 2],
         );
         $client->get('');
 
@@ -237,7 +237,7 @@ class GuzzleClientFactoryTest extends TestCase
         $request = $requestHistory[2]['request'];
         self::assertEquals('https://example.com', $request->getUri()->__toString());
         self::assertTrue($logger->hasWarningThatContains(
-            'Request failed (Server error: `GET https://example.com` resulted in a `501 Not Implemented`'
+            'Request failed (Server error: `GET https://example.com` resulted in a `501 Not Implemented`',
         ));
         self::assertTrue($logger->hasWarningThatContains('retrying (1 of 2)'));
     }
@@ -248,17 +248,17 @@ class GuzzleClientFactoryTest extends TestCase
             new Response(
                 429,
                 [],
-                'boo'
+                'boo',
             ),
             new Response(
                 429,
                 [],
-                'boo'
+                'boo',
             ),
             new Response(
                 200,
                 [],
-                'boo'
+                'boo',
             ),
         ]);
 
@@ -270,7 +270,7 @@ class GuzzleClientFactoryTest extends TestCase
         $factory = new GuzzleClientFactory($logger);
         $client = $factory->getClient(
             'https://example.com',
-            ['handler' => $stack, 'userAgent' => 'test-client', 'backoffMaxTries' => 2]
+            ['handler' => $stack, 'userAgent' => 'test-client', 'backoffMaxTries' => 2],
         );
         $client->get('');
 
@@ -283,7 +283,7 @@ class GuzzleClientFactoryTest extends TestCase
         $request = $requestHistory[2]['request'];
         self::assertEquals('https://example.com', $request->getUri()->__toString());
         self::assertTrue($logger->hasWarningThatContains(
-            'Request failed (Client error: `GET https://example.com` resulted in a `429 Too Many Requests`'
+            'Request failed (Client error: `GET https://example.com` resulted in a `429 Too Many Requests`',
         ));
         self::assertTrue($logger->hasWarningThatContains('retrying (1 of 2)'));
     }

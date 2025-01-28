@@ -26,7 +26,7 @@ class AuthenticationFactoryTest extends BaseTest
         $authenticationFactory = new AuthenticatorFactory();
         $authenticator = $authenticationFactory->getAuthenticator(
             new GuzzleClientFactory(new NullLogger()),
-            'https://vault.azure.net'
+            'https://vault.azure.net',
         );
         self::assertInstanceOf(ClientCredentialsEnvironmentAuthenticator::class, $authenticator);
     }
@@ -42,7 +42,7 @@ class AuthenticationFactoryTest extends BaseTest
             ->willThrowException(new GuzzleClientException(
                 'boo',
                 new Request('GET', '/foo/'),
-                new Response()
+                new Response(),
             ));
         $factoryMock = $this->createMock(GuzzleClientFactory::class);
         $factoryMock->method('getClient')->willReturn($mock);
@@ -54,7 +54,7 @@ class AuthenticationFactoryTest extends BaseTest
         self::assertInstanceOf(ManagedCredentialsAuthenticator::class, $authenticator);
         self::assertTrue($logger->hasDebugThatContains(
             'ClientCredentialsEnvironmentAuthenticator is not usable: ' .
-            'Environment variable "AZURE_TENANT_ID" is not set.'
+            'Environment variable "AZURE_TENANT_ID" is not set.',
         ));
     }
 

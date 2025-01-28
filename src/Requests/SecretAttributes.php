@@ -35,7 +35,7 @@ class SecretAttributes
                 self::RECOVERY_LEVEL_RECOVERABLE,
                 self::RECOVERY_LEVEL_RECOVERABLE_PROTECTED_SUBSCRIPTION,
                 self::RECOVERY_LEVEL_RECOVERABLE_PURGEABLE,
-            ]
+            ],
         )) {
             throw new ClientException(sprintf('Invalid recovery level "%s"', $recoveryLevel));
         }
@@ -60,7 +60,7 @@ class SecretAttributes
             $attributes['exp'],
             $attributes['nbf'],
             $attributes['recoveryLevel'],
-            $attributes['updated']
+            $attributes['updated'],
         );
     }
 

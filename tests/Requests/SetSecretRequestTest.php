@@ -22,7 +22,7 @@ class SetSecretRequestTest extends TestCase
                 'contentType' => 'plain',
                 'tags' => ['a' => 'b'],
             ],
-            $request->getArray()
+            $request->getArray(),
         );
     }
 
@@ -33,7 +33,7 @@ class SetSecretRequestTest extends TestCase
             [
                 'value' => 'so-secret',
             ],
-            $request->getArray()
+            $request->getArray(),
         );
     }
 }

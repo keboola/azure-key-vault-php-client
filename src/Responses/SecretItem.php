@@ -15,9 +15,6 @@ class SecretItem
     protected bool $managed;
     protected array $tags;
 
-    /**
-     * @param array $data
-     */
     public function __construct(array $data)
     {
         $this->validateData($data);

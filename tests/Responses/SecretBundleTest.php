@@ -40,7 +40,7 @@ class SecretBundleTest extends TestCase
                 'recoveryLevel' => 'Purgeable',
                 'updated' => 1590586213,
             ],
-            $secretBundle->getAttributes()->getArray()
+            $secretBundle->getAttributes()->getArray(),
         );
         self::assertEquals('plain', $secretBundle->getContentType());
         self::assertEquals('https://test.vault.azure.net/secrets/foo/53af0dad94f248', $secretBundle->getId());
@@ -51,7 +51,7 @@ class SecretBundleTest extends TestCase
                 'a' => 'b',
                 'c' => 'd',
             ],
-            $secretBundle->getTags()
+            $secretBundle->getTags(),
         );
         self::assertEquals('so-secret', $secretBundle->getValue());
         self::assertEquals('foo', $secretBundle->getName());

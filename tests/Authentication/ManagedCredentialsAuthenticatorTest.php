@@ -31,7 +31,7 @@ class ManagedCredentialsAuthenticatorTest extends TestCase
                     "not_before": "1589806552",
                     "resource": "https://vault.azure.net",
                     "access_token": "ey....ey"
-                }'
+                }',
             ),
         ]);
 
@@ -56,7 +56,7 @@ class ManagedCredentialsAuthenticatorTest extends TestCase
         self::assertEquals(
             // phpcs:ignore Generic.Files.LineLength
             'https://example.com/metadata/identity/oauth2/token?api-version=2019-11-01&format=text&resource=https://vault.azure.net',
-            $request->getUri()->__toString()
+            $request->getUri()->__toString(),
         );
         self::assertEquals('GET', $request->getMethod());
         self::assertEquals('Azure PHP Client', $request->getHeader('User-Agent')[0]);
@@ -72,7 +72,7 @@ class ManagedCredentialsAuthenticatorTest extends TestCase
                 ['Content-Type' => 'application/json'],
                 '{
                     "foo": "bar"
-                }'
+                }',
             ),
         ]);
 
@@ -99,7 +99,7 @@ class ManagedCredentialsAuthenticatorTest extends TestCase
                 ['Content-Type' => 'application/json'],
                 '{
                     "bar"
-                }'
+                }',
             ),
         ]);
 
@@ -124,7 +124,7 @@ class ManagedCredentialsAuthenticatorTest extends TestCase
             new Response(
                 200,
                 ['Content-Type' => 'application/json'],
-                ''
+                '',
             ),
         ]);
 
@@ -144,7 +144,7 @@ class ManagedCredentialsAuthenticatorTest extends TestCase
         $request = $requestHistory[0]['request'];
         self::assertEquals(
             'https://example.com/metadata?api-version=2019-11-01&format=text',
-            $request->getUri()->__toString()
+            $request->getUri()->__toString(),
         );
         self::assertEquals('GET', $request->getMethod());
         self::assertEquals('Azure PHP Client', $request->getHeader('User-Agent')[0]);
@@ -158,12 +158,12 @@ class ManagedCredentialsAuthenticatorTest extends TestCase
             new Response(
                 500,
                 ['Content-Type' => 'application/json'],
-                ''
+                '',
             ),
             new Response(
                 500,
                 ['Content-Type' => 'application/json'],
-                ''
+                '',
             ),
         ]);
 
@@ -179,7 +179,7 @@ class ManagedCredentialsAuthenticatorTest extends TestCase
         $auth = new ManagedCredentialsAuthenticator($factory, 'https://vault.azure.net');
         self::expectExceptionMessage(
             // phpcs:ignore Generic.Files.LineLength
-            'Instance metadata service not available: Server error: `GET https://example.com/metadata?api-version=2019-11-01&format=text` resulted in a `500 Internal Server Error`'
+            'Instance metadata service not available: Server error: `GET https://example.com/metadata?api-version=2019-11-01&format=text` resulted in a `500 Internal Server Error`',
         );
         self::expectException(ClientException::class);
         $auth->checkUsability();

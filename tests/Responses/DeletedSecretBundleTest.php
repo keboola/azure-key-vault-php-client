@@ -43,7 +43,7 @@ class DeletedSecretBundleTest extends TestCase
             'recoveryLevel' => 'Purgeable',
             'updated' => 1590586213,
             ],
-            $deletedSecretBundle->getAttributes()->getArray()
+            $deletedSecretBundle->getAttributes()->getArray(),
         );
         self::assertEquals('plain', $deletedSecretBundle->getContentType());
         self::assertEquals('https://test.vault.azure.net/secrets/foo/53af0dad94f248', $deletedSecretBundle->getId());
@@ -54,7 +54,7 @@ class DeletedSecretBundleTest extends TestCase
                 'a' => 'b',
                 'c' => 'd',
             ],
-            $deletedSecretBundle->getTags()
+            $deletedSecretBundle->getTags(),
         );
         self::assertEquals('so-secret', $deletedSecretBundle->getValue());
         self::assertEquals('foo', $deletedSecretBundle->getName());
@@ -93,7 +93,7 @@ class DeletedSecretBundleTest extends TestCase
             'recoveryLevel' => 'Purgeable',
             'updated' => 1590586213,
             ],
-            $deletedSecretBundle->getAttributes()->getArray()
+            $deletedSecretBundle->getAttributes()->getArray(),
         );
         self::assertEquals('https://test.vault.azure.net/secrets/foo/53af0dad94f248', $deletedSecretBundle->getId());
         self::assertEquals('foo', $deletedSecretBundle->getName());

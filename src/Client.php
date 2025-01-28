@@ -49,7 +49,7 @@ class Client
             function (RequestInterface $request) {
                 return $request
                     ->withHeader('Authorization', 'Bearer ' . $this->token);
-            }
+            },
         ));
         $this->logger = $clientFactory->getLogger();
         $this->guzzle = $clientFactory->getClient($vaultBaseUrl, ['handler' => $handlerStack]);
@@ -87,13 +87,13 @@ class Client
             throw new ClientException(
                 trim($data['error']['code'] . ': ' . $data['error']['message']),
                 $response->getStatusCode(),
-                $e
+                $e,
             );
         } elseif (!empty($data['error']) && is_scalar($data['error'])) {
             throw new ClientException(
                 trim('Request failed with error: ' . $data['error']),
                 $response->getStatusCode(),
-                $e
+                $e,
             );
         }
     }
@@ -104,7 +104,7 @@ class Client
             'POST',
             sprintf('keys/%s/%s/encrypt?api-version=%s', $keyName, $keyVersion, self::API_VERSION),
             [],
-            (string) json_encode($encryptRequest->getArray(), JSON_THROW_ON_ERROR)
+            (string) json_encode($encryptRequest->getArray(), JSON_THROW_ON_ERROR),
         );
         return new KeyOperationResult($this->sendRequest($request));
     }
@@ -115,7 +115,7 @@ class Client
             'POST',
             sprintf('keys/%s/%s/decrypt?api-version=%s', $keyName, $keyVersion, self::API_VERSION),
             [],
-            (string) json_encode($encryptRequest->getArray(), JSON_THROW_ON_ERROR)
+            (string) json_encode($encryptRequest->getArray(), JSON_THROW_ON_ERROR),
         );
         return new KeyOperationResult($this->sendRequest($request));
     }
@@ -126,7 +126,7 @@ class Client
             'PUT',
             sprintf('secrets/%s?api-version=%s', $secretName, self::API_VERSION),
             [],
-            (string) json_encode($setSecretRequest->getArray(), JSON_THROW_ON_ERROR)
+            (string) json_encode($setSecretRequest->getArray(), JSON_THROW_ON_ERROR),
         );
         return new SecretBundle($this->sendRequest($request));
     }
@@ -136,12 +136,12 @@ class Client
         if ($secretVersion === null) {
             $request = new Request(
                 'GET',
-                sprintf('secrets/%s?api-version=%s', $secretName, self::API_VERSION)
+                sprintf('secrets/%s?api-version=%s', $secretName, self::API_VERSION),
             );
         } else {
             $request = new Request(
                 'GET',
-                sprintf('secrets/%s/%s?api-version=%s', $secretName, $secretVersion, self::API_VERSION)
+                sprintf('secrets/%s/%s?api-version=%s', $secretName, $secretVersion, self::API_VERSION),
             );
         }
         return new SecretBundle($this->sendRequest($request));
@@ -151,7 +151,7 @@ class Client
     {
         $request = new Request(
             'GET',
-            sprintf('secrets/?maxresults=%s&api-version=%s', $maxResults, self::API_VERSION)
+            sprintf('secrets/?maxresults=%s&api-version=%s', $maxResults, self::API_VERSION),
         );
         return new SecretListResult($this->sendRequest($request));
     }
@@ -166,7 +166,7 @@ class Client
         while ($listResult->getNextLink()) {
             $request = new Request(
                 'GET',
-                $listResult->getNextLink()
+                $listResult->getNextLink(),
             );
             $listResult = new SecretListResult($this->sendRequest($request));
             $items = array_merge($items, $listResult->getValue());
@@ -178,7 +178,7 @@ class Client
     {
         $request = new Request(
             'DELETE',
-            sprintf('secrets/%s?api-version=%s', $secretName, self::API_VERSION)
+            sprintf('secrets/%s?api-version=%s', $secretName, self::API_VERSION),
         );
         return new DeletedSecretBundle($this->sendRequest($request));
     }

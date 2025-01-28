@@ -22,7 +22,7 @@ class ClientCredentialsEnvironmentAuthenticatorTest extends BaseTest
     {
         $authenticator = new ClientCredentialsEnvironmentAuthenticator(
             new GuzzleClientFactory(new NullLogger()),
-            'https://vault.azure.net'
+            'https://vault.azure.net',
         );
         putenv('AZURE_TENANT_ID=');
         self::expectException(ClientException::class);
@@ -34,7 +34,7 @@ class ClientCredentialsEnvironmentAuthenticatorTest extends BaseTest
     {
         $authenticator = new ClientCredentialsEnvironmentAuthenticator(
             new GuzzleClientFactory(new NullLogger()),
-            'https://vault.azure.net'
+            'https://vault.azure.net',
         );
         putenv('AZURE_CLIENT_ID=');
         self::expectException(ClientException::class);
@@ -46,7 +46,7 @@ class ClientCredentialsEnvironmentAuthenticatorTest extends BaseTest
     {
         $authenticator = new ClientCredentialsEnvironmentAuthenticator(
             new GuzzleClientFactory(new NullLogger()),
-            'https://vault.azure.net'
+            'https://vault.azure.net',
         );
         putenv('AZURE_CLIENT_SECRET=');
         self::expectException(ClientException::class);
@@ -59,14 +59,14 @@ class ClientCredentialsEnvironmentAuthenticatorTest extends BaseTest
         $logger = new TestLogger();
         $authenticator = new ClientCredentialsEnvironmentAuthenticator(
             new GuzzleClientFactory($logger),
-            'https://vault.azure.net'
+            'https://vault.azure.net',
         );
         $authenticator->checkUsability();
         self::assertTrue($logger->hasDebugThatContains(
-            'AZURE_AD_RESOURCE environment variable is not specified, falling back to default.'
+            'AZURE_AD_RESOURCE environment variable is not specified, falling back to default.',
         ));
         self::assertTrue($logger->hasDebugThatContains(
-            'AZURE_ENVIRONMENT environment variable is not specified, falling back to default.'
+            'AZURE_ENVIRONMENT environment variable is not specified, falling back to default.',
         ));
     }
 
@@ -77,14 +77,14 @@ class ClientCredentialsEnvironmentAuthenticatorTest extends BaseTest
         $logger = new TestLogger();
         $authenticator = new ClientCredentialsEnvironmentAuthenticator(
             new GuzzleClientFactory($logger),
-            'https://vault.azure.net'
+            'https://vault.azure.net',
         );
         $authenticator->checkUsability();
         self::assertFalse($logger->hasDebugThatContains(
-            'AZURE_AD_RESOURCE environment variable is not specified, falling back to default.'
+            'AZURE_AD_RESOURCE environment variable is not specified, falling back to default.',
         ));
         self::assertFalse($logger->hasDebugThatContains(
-            'AZURE_ENVIRONMENT environment variable is not specified, falling back to default.'
+            'AZURE_ENVIRONMENT environment variable is not specified, falling back to default.',
         ));
     }
 
@@ -95,11 +95,11 @@ class ClientCredentialsEnvironmentAuthenticatorTest extends BaseTest
         putenv('AzureCloud=123');
         self::expectException(ClientException::class);
         self::expectExceptionMessage(
-            'Invalid options when creating client: Value "not-an-url" is invalid: This value is not a valid URL.'
+            'Invalid options when creating client: Value "not-an-url" is invalid: This value is not a valid URL.',
         );
         new ClientCredentialsEnvironmentAuthenticator(
             new GuzzleClientFactory($logger),
-            'https://vault.azure.net'
+            'https://vault.azure.net',
         );
     }
 
@@ -132,7 +132,7 @@ class ClientCredentialsEnvironmentAuthenticatorTest extends BaseTest
         $request = $requestHistory[0]['request'];
         self::assertEquals(
             'https://management.azure.com/metadata/endpoints?api-version=2020-01-01',
-            $request->getUri()->__toString()
+            $request->getUri()->__toString(),
         );
         self::assertEquals('GET', $request->getMethod());
         self::assertEquals('Azure PHP Client', $request->getHeader('User-Agent')[0]);
@@ -146,7 +146,7 @@ class ClientCredentialsEnvironmentAuthenticatorTest extends BaseTest
         self::assertEquals(
             // phpcs:ignore Generic.Files.LineLength
             'grant_type=client_credentials&client_id=client123&client_secret=secret123&resource=https%3A%2F%2Fvault.azure.net',
-            $request->getBody()->getContents()
+            $request->getBody()->getContents(),
         );
     }
 
@@ -162,7 +162,7 @@ class ClientCredentialsEnvironmentAuthenticatorTest extends BaseTest
             new Response(
                 200,
                 ['Content-Type' => 'application/json'],
-                (string) json_encode($metadata)
+                (string) json_encode($metadata),
             ),
             new Response(
                 200,
@@ -175,7 +175,7 @@ class ClientCredentialsEnvironmentAuthenticatorTest extends BaseTest
                     "not_before": "1589806552",
                     "resource": "https://vault.azure.net",
                     "access_token": "ey....ey"
-                }'
+                }',
             ),
         ]);
 
@@ -211,7 +211,7 @@ class ClientCredentialsEnvironmentAuthenticatorTest extends BaseTest
         self::assertEquals(
             // phpcs:ignore Generic.Files.LineLength
             'grant_type=client_credentials&client_id=client123&client_secret=secret123&resource=https%3A%2F%2Fvault.azure.net',
-            $request->getBody()->getContents()
+            $request->getBody()->getContents(),
         );
     }
 
@@ -222,7 +222,7 @@ class ClientCredentialsEnvironmentAuthenticatorTest extends BaseTest
             new Response(
                 200,
                 ['Content-Type' => 'application/json'],
-                (string) json_encode($this->getSampleArmMetadata())
+                (string) json_encode($this->getSampleArmMetadata()),
             ),
         ]);
 
@@ -247,12 +247,12 @@ class ClientCredentialsEnvironmentAuthenticatorTest extends BaseTest
             new Response(
                 500,
                 ['Content-Type' => 'application/json'],
-                'boo'
+                'boo',
             ),
             new Response(
                 200,
                 ['Content-Type' => 'application/json'],
-                (string) json_encode($this->getSampleArmMetadata())
+                (string) json_encode($this->getSampleArmMetadata()),
             ),
             new Response(
                 200,
@@ -265,7 +265,7 @@ class ClientCredentialsEnvironmentAuthenticatorTest extends BaseTest
                     "not_before": "1589806552",
                     "resource": "https://vault.azure.net",
                     "access_token": "ey....ey"
-                }'
+                }',
             ),
         ]);
 
@@ -289,7 +289,7 @@ class ClientCredentialsEnvironmentAuthenticatorTest extends BaseTest
             new Response(
                 200,
                 ['Content-Type' => 'application/json'],
-                'boo'
+                'boo',
             ),
         ]);
 
@@ -314,7 +314,7 @@ class ClientCredentialsEnvironmentAuthenticatorTest extends BaseTest
             new Response(
                 200,
                 ['Content-Type' => 'application/json'],
-                '"boo"'
+                '"boo"',
             ),
         ]);
 
@@ -339,12 +339,12 @@ class ClientCredentialsEnvironmentAuthenticatorTest extends BaseTest
             new Response(
                 200,
                 ['Content-Type' => 'application/json'],
-                (string) json_encode($this->getSampleArmMetadata())
+                (string) json_encode($this->getSampleArmMetadata()),
             ),
             new Response(
                 200,
                 ['Content-Type' => 'application/json'],
-                '{"boo"}'
+                '{"boo"}',
             ),
         ]);
 
@@ -369,12 +369,12 @@ class ClientCredentialsEnvironmentAuthenticatorTest extends BaseTest
             new Response(
                 200,
                 ['Content-Type' => 'application/json'],
-                (string) json_encode($this->getSampleArmMetadata())
+                (string) json_encode($this->getSampleArmMetadata()),
             ),
             new Response(
                 200,
                 ['Content-Type' => 'application/json'],
-                '{"error": "boo"}'
+                '{"error": "boo"}',
             ),
         ]);
 
