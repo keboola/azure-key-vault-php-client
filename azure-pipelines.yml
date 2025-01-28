@@ -12,7 +12,7 @@ pool:
   vmImage: ubuntu-latest
 
 steps:
-- script: docker-compose build --build-arg PHP_VERSION=$PHP_VERSION ci && docker-compose run --rm ci
+- script: docker compose build --build-arg PHP_VERSION=$PHP_VERSION ci && docker compose run --rm ci
   displayName: 'Run Tests PHP 7.4'
   env:
     TEST_TENANT_ID: $(TEST_TENANT_ID)
@@ -27,7 +27,7 @@ steps:
     GIT_BRANCH: $(Build.SourceBranch)
     CC_TEST_REPORTER_ID: $(CC_TEST_REPORTER_ID)
 
-- script: docker-compose build --build-arg PHP_VERSION=$PHP_VERSION ci && docker-compose run --rm ci
+- script: docker compose build --build-arg PHP_VERSION=$PHP_VERSION ci && docker compose run --rm ci
   displayName: 'Run Tests PHP 8.1'
   env:
     TEST_TENANT_ID: $(TEST_TENANT_ID)
