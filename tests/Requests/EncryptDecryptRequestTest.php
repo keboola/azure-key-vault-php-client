@@ -19,7 +19,7 @@ class EncryptDecryptRequestTest extends TestCase
                 'alg' => 'RSA-OAEP',
                 'value' => 'Zm9v',
             ],
-            $request->getArray()
+            $request->getArray(),
         );
     }
 
@@ -38,7 +38,7 @@ class EncryptDecryptRequestTest extends TestCase
                 'alg' => 'RSA-OAEP',
                 'value' => 'foo',
             ],
-            $request->getArray()
+            $request->getArray(),
         );
     }
 

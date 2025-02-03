@@ -43,14 +43,14 @@ class GuzzleClientFactory
         $validator = Validation::createValidator();
         $errors = $validator->validate($baseUrl, [new Url()]);
         $errors->addAll(
-            $validator->validate($baseUrl, [new NotBlank()])
+            $validator->validate($baseUrl, [new NotBlank()]),
         );
         $unknownOptions = array_diff(array_keys($options), self::ALLOWED_OPTIONS);
         if ($unknownOptions) {
             throw new ClientException(sprintf(
                 'Invalid options when creating client: %s. Valid options are: %s.',
                 implode(', ', $unknownOptions),
-                implode(', ', self::ALLOWED_OPTIONS)
+                implode(', ', self::ALLOWED_OPTIONS),
             ));
         }
 
@@ -80,7 +80,7 @@ class GuzzleClientFactory
             int $retries,
             RequestInterface $request,
             ?ResponseInterface $response = null,
-            ?Throwable $error = null
+            ?Throwable $error = null,
         ) use ($maxRetries) {
             if ($retries >= $maxRetries) {
                 return false;
@@ -102,8 +102,8 @@ class GuzzleClientFactory
                             (empty($response) ? 'No error' : $response->getBody()->getContents())
                             : $error->getMessage(),
                         $retries,
-                        $maxRetries
-                    )
+                        $maxRetries,
+                    ),
                 );
                 return true;
             }
@@ -124,8 +124,8 @@ class GuzzleClientFactory
                 $options['logger'],
                 new MessageFormatter(
                     '{hostname} {req_header_User-Agent} - [{ts}] "{method} {resource} {protocol}/{version}"' .
-                    ' {code} {res_header_Content-Length}'
-                )
+                    ' {code} {res_header_Content-Length}',
+                ),
             ));
         }
         // finally create the instance

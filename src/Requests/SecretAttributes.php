@@ -26,7 +26,7 @@ class SecretAttributes
         ?int $exp = null,
         ?int $nbf = null,
         ?string $recoveryLevel = null,
-        ?int $updated = null
+        ?int $updated = null,
     ) {
         if (!is_null($recoveryLevel) && !in_array(
             $recoveryLevel,
@@ -35,7 +35,7 @@ class SecretAttributes
                 self::RECOVERY_LEVEL_RECOVERABLE,
                 self::RECOVERY_LEVEL_RECOVERABLE_PROTECTED_SUBSCRIPTION,
                 self::RECOVERY_LEVEL_RECOVERABLE_PURGEABLE,
-            ]
+            ],
         )) {
             throw new ClientException(sprintf('Invalid recovery level "%s"', $recoveryLevel));
         }
@@ -60,7 +60,7 @@ class SecretAttributes
             $attributes['exp'],
             $attributes['nbf'],
             $attributes['recoveryLevel'],
-            $attributes['updated']
+            $attributes['updated'],
         );
     }
 

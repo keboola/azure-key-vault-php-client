@@ -25,7 +25,7 @@ class ClientTest extends BaseTest
             new Response(
                 200,
                 ['Content-Type' => 'application/json'],
-                (string) json_encode($this->getSampleArmMetadata())
+                (string) json_encode($this->getSampleArmMetadata()),
             ),
             new Response(
                 200,
@@ -38,7 +38,7 @@ class ClientTest extends BaseTest
                     "not_before": "1589806552",
                     "resource": "https://vault.azure.net",
                     "access_token": "ey....ey"
-                }'
+                }',
             ),
             new Response(
                 200,
@@ -46,7 +46,7 @@ class ClientTest extends BaseTest
                 '{
                     "kid": "https://my-test.vault.azure.net/keys/test-key/test-version",
                     "value": "someEncryptedValue"
-                }'
+                }',
             ),
         ]);
 
@@ -68,7 +68,7 @@ class ClientTest extends BaseTest
         $result = $client->encrypt(
             new EncryptRequest('RSA1_5', 'test'),
             'test-key',
-            'test-version'
+            'test-version',
         );
         self::assertNotEquals('test', $result->getValue(true));
         self::assertNotEquals('test', $result->getValue(false));
@@ -79,19 +79,19 @@ class ClientTest extends BaseTest
         $request = $requestHistory[0]['request'];
         self::assertEquals(
             'https://management.azure.com/metadata/endpoints?api-version=2020-01-01',
-            $request->getUri()->__toString()
+            $request->getUri()->__toString(),
         );
         /** @var Request $request */
         $request = $requestHistory[1]['request'];
         self::assertEquals(
             'https://login.windows.net/tenant123/oauth2/token',
-            $request->getUri()->__toString()
+            $request->getUri()->__toString(),
         );
         /** @var Request $request */
         $request = $requestHistory[2]['request'];
         self::assertEquals(
             'https://example.com/keys/test-key/test-version/encrypt?api-version=7.0',
-            $request->getUri()->__toString()
+            $request->getUri()->__toString(),
         );
         self::assertEquals('POST', $request->getMethod());
         self::assertEquals('Azure PHP Client', $request->getHeader('User-Agent')[0]);
@@ -111,8 +111,8 @@ class ClientTest extends BaseTest
             [new Response(
                 400,
                 ['Content-Type' => 'application/json'],
-                $body
-            )]
+                $body,
+            )],
         ));
 
         $requestHistory = [];
@@ -135,7 +135,7 @@ class ClientTest extends BaseTest
             $client->encrypt(
                 new EncryptRequest('RSA1_5', 'test'),
                 'test-key',
-                'test-version'
+                'test-version',
             );
             self::fail('Must throw exception');
         } catch (ClientException $e) {
@@ -149,17 +149,17 @@ class ClientTest extends BaseTest
         $request = $requestHistory[0]['request'];
         self::assertEquals(
             'https://management.azure.com/metadata/endpoints?api-version=2020-01-01',
-            $request->getUri()->__toString()
+            $request->getUri()->__toString(),
         );
         $request = $requestHistory[1]['request'];
         self::assertEquals(
             'https://login.windows.net/tenant123/oauth2/token',
-            $request->getUri()->__toString()
+            $request->getUri()->__toString(),
         );
         $request = $requestHistory[2]['request'];
         self::assertEquals(
             'https://example.com/keys/test-key/test-version/encrypt?api-version=7.0',
-            $request->getUri()->__toString()
+            $request->getUri()->__toString(),
         );
     }
 
@@ -207,7 +207,7 @@ class ClientTest extends BaseTest
                             "code": "Boo",
                             "message": "Cooties!"
                         }
-                    }'
+                    }',
                 )],
                 array_fill(0, 2, new Response(
                     500,
@@ -217,9 +217,9 @@ class ClientTest extends BaseTest
                             "code": "Boo",
                             "message": "Cooties!"
                         }
-                    }'
-                ))
-            )
+                    }',
+                )),
+            ),
         );
 
         $requestHistory = [];
@@ -242,7 +242,7 @@ class ClientTest extends BaseTest
             $client->encrypt(
                 new EncryptRequest('RSA1_5', 'test'),
                 'test-key',
-                'test-version'
+                'test-version',
             );
             self::fail('Must throw exception');
         } catch (ClientException $e) {
@@ -256,27 +256,27 @@ class ClientTest extends BaseTest
         $request = $requestHistory[0]['request'];
         self::assertEquals(
             'https://management.azure.com/metadata/endpoints?api-version=2020-01-01',
-            $request->getUri()->__toString()
+            $request->getUri()->__toString(),
         );
         $request = $requestHistory[1]['request'];
         self::assertEquals(
             'https://login.windows.net/tenant123/oauth2/token',
-            $request->getUri()->__toString()
+            $request->getUri()->__toString(),
         );
         $request = $requestHistory[2]['request'];
         self::assertEquals(
             'https://example.com/keys/test-key/test-version/encrypt?api-version=7.0',
-            $request->getUri()->__toString()
+            $request->getUri()->__toString(),
         );
         $request = $requestHistory[3]['request'];
         self::assertEquals(
             'https://example.com/keys/test-key/test-version/encrypt?api-version=7.0',
-            $request->getUri()->__toString()
+            $request->getUri()->__toString(),
         );
         $request = $requestHistory[4]['request'];
         self::assertEquals(
             'https://example.com/keys/test-key/test-version/encrypt?api-version=7.0',
-            $request->getUri()->__toString()
+            $request->getUri()->__toString(),
         );
     }
 }

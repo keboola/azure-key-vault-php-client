@@ -17,7 +17,7 @@ class AuthenticatorFactory
             return $authenticator;
         } catch (ClientException $e) {
             $clientFactory->getLogger()->debug(
-                'ClientCredentialsEnvironmentAuthenticator is not usable: ' . $e->getMessage()
+                'ClientCredentialsEnvironmentAuthenticator is not usable: ' . $e->getMessage(),
             );
         }
         /* ManagedCredentialsAuthenticator checkUsability method has poor performance due to slow responses

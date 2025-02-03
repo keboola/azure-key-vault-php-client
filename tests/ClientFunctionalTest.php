@@ -26,7 +26,7 @@ class ClientFunctionalTest extends TestCase
         foreach ($envs as $env) {
             if (!getenv($env)) {
                 throw new RuntimeException(
-                    sprintf('At least one of %s environment variables is empty.', implode(', ', $envs))
+                    sprintf('At least one of %s environment variables is empty.', implode(', ', $envs)),
                 );
             }
         }
@@ -42,7 +42,7 @@ class ClientFunctionalTest extends TestCase
         $client = new Client(
             new GuzzleClientFactory(new NullLogger()),
             new AuthenticatorFactory(),
-            (string) getenv('TEST_KEY_VAULT_URL')
+            (string) getenv('TEST_KEY_VAULT_URL'),
         );
         foreach ($client->getAllSecrets() as $secret) {
             $client->deleteSecret($secret->getName());
@@ -56,12 +56,12 @@ class ClientFunctionalTest extends TestCase
         $client = new Client(
             new GuzzleClientFactory($logger),
             new AuthenticatorFactory(),
-            (string) getenv('TEST_KEY_VAULT_URL')
+            (string) getenv('TEST_KEY_VAULT_URL'),
         );
         $result = $client->encrypt(
             new EncryptRequest(EncryptDecryptRequest::RSA_OAEP_256, $payload),
             (string) getenv('TEST_KEY_NAME'),
-            (string) getenv('TEST_KEY_VERSION')
+            (string) getenv('TEST_KEY_VERSION'),
         );
         self::assertNotEquals($payload, $result->getValue(false));
         self::assertNotEquals($payload, $result->getValue(true));
@@ -69,18 +69,18 @@ class ClientFunctionalTest extends TestCase
         self::assertEquals(
             getenv('TEST_KEY_VAULT_URL') . '/keys/' . getenv('TEST_KEY_NAME') .
             '/' . getenv('TEST_KEY_VERSION'),
-            $result->getKid()
+            $result->getKid(),
         );
         $result = $client->decrypt(
             new DecryptRequest(EncryptDecryptRequest::RSA_OAEP_256, $result->getValue(false)),
             (string) getenv('TEST_KEY_NAME'),
-            (string) getenv('TEST_KEY_VERSION')
+            (string) getenv('TEST_KEY_VERSION'),
         );
         self::assertEquals($payload, $result->getValue(true));
         self::assertEquals(
             getenv('TEST_KEY_VAULT_URL') . '/keys/' . getenv('TEST_KEY_NAME') .
             '/' . getenv('TEST_KEY_VERSION'),
-            $result->getKid()
+            $result->getKid(),
         );
     }
 
@@ -91,11 +91,11 @@ class ClientFunctionalTest extends TestCase
         $client = new Client(
             new GuzzleClientFactory($logger),
             new AuthenticatorFactory(),
-            (string) getenv('TEST_KEY_VAULT_URL')
+            (string) getenv('TEST_KEY_VAULT_URL'),
         );
         $result = $client->setSecret(
             new SetSecretRequest($payload, new SecretAttributes(), null, ['a' => 'b', 'c' => 'd']),
-            uniqid('my-secret')
+            uniqid('my-secret'),
         );
         self::assertEquals($payload, $result->getValue());
 
@@ -111,17 +111,17 @@ class ClientFunctionalTest extends TestCase
         $client = new Client(
             new GuzzleClientFactory($logger),
             new AuthenticatorFactory(),
-            (string) getenv('TEST_KEY_VAULT_URL')
+            (string) getenv('TEST_KEY_VAULT_URL'),
         );
         $secretName = uniqid('my-secret');
         $client->setSecret(
             new SetSecretRequest($payload, new SecretAttributes(), null, ['a' => 'b', 'c' => 'd']),
-            $secretName
+            $secretName,
         );
         $payload = 'test';
         $result = $client->setSecret(
             new SetSecretRequest($payload, new SecretAttributes(), null, ['a' => 'b', 'c' => 'd']),
-            $secretName
+            $secretName,
         );
         self::assertEquals($payload, $result->getValue());
 
@@ -135,7 +135,7 @@ class ClientFunctionalTest extends TestCase
         $client = new Client(
             new GuzzleClientFactory(new NullLogger()),
             new AuthenticatorFactory(),
-            (string) getenv('TEST_KEY_VAULT_URL')
+            (string) getenv('TEST_KEY_VAULT_URL'),
         );
         $client->setSecret(new SetSecretRequest('test1', new SecretAttributes()), uniqid('test-secret1'));
         $client->setSecret(new SetSecretRequest('test2', new SecretAttributes()), uniqid('test-secret2'));

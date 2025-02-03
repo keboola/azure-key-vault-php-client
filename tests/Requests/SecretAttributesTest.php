@@ -28,7 +28,7 @@ class SecretAttributesTest extends TestCase
                 'recoveryLevel' => 'Purgeable',
                 'updated' => 1590586216,
             ],
-            $attributes->getArray()
+            $attributes->getArray(),
         );
     }
 
@@ -64,7 +64,7 @@ class SecretAttributesTest extends TestCase
                 'recoveryLevel' => 'Purgeable',
                 'updated' => 1590586216,
             ],
-            $attributes->getArray()
+            $attributes->getArray(),
         );
     }
 }

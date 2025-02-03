@@ -35,11 +35,11 @@ $result = $client->encrypt(
 
 Run tests with:
 
-    docker-compose run --rm testsXX
+    docker compose run --rm testsXX
 
 where XX is PHP version (56 - 74), e.g.:
 
-    docker-compose run --rm tests70
+    docker compose run --rm tests70
 
 ### Resources Setup
 
