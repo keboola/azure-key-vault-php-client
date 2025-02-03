@@ -4,7 +4,6 @@
         <exclude name="SlevomatCodingStandard.TypeHints.ParameterTypeHint"/>
         <exclude name="SlevomatCodingStandard.TypeHints.PropertyTypeHint"/>
         <exclude name="SlevomatCodingStandard.TypeHints.ReturnTypeHint"/>
-        <exclude name="SlevomatCodingStandard.Functions.RequireTrailingCommaInDeclaration"/>
     </rule>
     <exclude-pattern>*/src/Kernel.php</exclude-pattern>
 </ruleset>

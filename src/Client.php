@@ -41,7 +41,7 @@ class Client
     public function __construct(
         GuzzleClientFactory $clientFactory,
         AuthenticatorFactory $authenticatorFactory,
-        string $vaultBaseUrl
+        string $vaultBaseUrl,
     ) {
         $handlerStack = HandlerStack::create();
         // Set handler to set authorization

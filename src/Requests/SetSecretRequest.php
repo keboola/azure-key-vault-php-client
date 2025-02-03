@@ -15,7 +15,7 @@ class SetSecretRequest
         string $value,
         SecretAttributes $attributes,
         ?string $contentType = null,
-        ?array $tags = null
+        ?array $tags = null,
     ) {
         $this->value = $value;
         $this->attributes = $attributes;

@@ -80,7 +80,7 @@ class GuzzleClientFactory
             int $retries,
             RequestInterface $request,
             ?ResponseInterface $response = null,
-            ?Throwable $error = null
+            ?Throwable $error = null,
         ) use ($maxRetries) {
             if ($retries >= $maxRetries) {
                 return false;

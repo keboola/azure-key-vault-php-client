@@ -12,8 +12,8 @@ pool:
   vmImage: ubuntu-latest
 
 steps:
-- script: docker compose build --build-arg PHP_VERSION=$PHP_VERSION ci && docker compose run --rm ci
-  displayName: 'Run Tests PHP 7.4'
+- script: docker compose build ci && docker compose run --rm ci
+  displayName: 'Run Tests'
   env:
     TEST_TENANT_ID: $(TEST_TENANT_ID)
     TEST_CLIENT_ID: $(TEST_CLIENT_ID)
@@ -21,22 +21,6 @@ steps:
     TEST_KEY_VAULT_URL: $(TEST_KEY_VAULT_URL)
     TEST_KEY_NAME: $(TEST_KEY_VAULT_URL)
     TEST_KEY_VERSION: $(TEST_KEY_VERSION)
-    PHP_VERSION: 7.4
-    # For Codeclimate:
-    GIT_COMMIT_SHA: $(Build.SourceVersion)
-    GIT_BRANCH: $(Build.SourceBranch)
-    CC_TEST_REPORTER_ID: $(CC_TEST_REPORTER_ID)
-
-- script: docker compose build --build-arg PHP_VERSION=$PHP_VERSION ci && docker compose run --rm ci
-  displayName: 'Run Tests PHP 8.1'
-  env:
-    TEST_TENANT_ID: $(TEST_TENANT_ID)
-    TEST_CLIENT_ID: $(TEST_CLIENT_ID)
-    TEST_CLIENT_SECRET: $(TEST_CLIENT_SECRET)
-    TEST_KEY_VAULT_URL: $(TEST_KEY_VAULT_URL)
-    TEST_KEY_NAME: $(TEST_KEY_VAULT_URL)
-    TEST_KEY_VERSION: $(TEST_KEY_VERSION)
-    PHP_VERSION: 8.1
     # For Codeclimate:
     GIT_COMMIT_SHA: $(Build.SourceVersion)
     GIT_BRANCH: $(Build.SourceBranch)

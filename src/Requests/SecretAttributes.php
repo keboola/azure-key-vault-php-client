@@ -26,7 +26,7 @@ class SecretAttributes
         ?int $exp = null,
         ?int $nbf = null,
         ?string $recoveryLevel = null,
-        ?int $updated = null
+        ?int $updated = null,
     ) {
         if (!is_null($recoveryLevel) && !in_array(
             $recoveryLevel,
