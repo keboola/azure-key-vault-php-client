@@ -20,6 +20,17 @@ class AuthenticatorFactory
                 'ClientCredentialsEnvironmentAuthenticator is not usable: ' . $e->getMessage(),
             );
         }
+
+        $authenticator = new FederatedTokenAuthenticator($clientFactory, $resource);
+        try {
+            $authenticator->checkUsability();
+            return $authenticator;
+        } catch (ClientException $e) {
+            $clientFactory->getLogger()->debug(
+                'FederatedTokenAuthenticator is not usable: ' . $e->getMessage(),
+            );
+        }
+
         /* ManagedCredentialsAuthenticator checkUsability method has poor performance due to slow responses
             from GET /metadata requests */
         return new ManagedCredentialsAuthenticator($clientFactory, $resource);
