@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Keboola\AzureKeyVaultClient\Tests\Authentication;
 
-use GuzzleHttp\Client;
-use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\HandlerStack;
@@ -57,8 +55,8 @@ class FederatedTokenAuthenticatorTest extends BaseTest
             'https://vault.azure.net',
         );
         putenv('AZURE_TENANT_ID=');
-        self::expectException(ClientException::class);
-        self::expectExceptionMessage('Environment variable "AZURE_TENANT_ID" is not set.');
+        $this->expectException(ClientException::class);
+        $this->expectExceptionMessage('Environment variable "AZURE_TENANT_ID" is not set.');
         $authenticator->checkUsability();
     }
 
@@ -69,8 +67,8 @@ class FederatedTokenAuthenticatorTest extends BaseTest
             'https://vault.azure.net',
         );
         putenv('AZURE_CLIENT_ID=');
-        self::expectException(ClientException::class);
-        self::expectExceptionMessage('Environment variable "AZURE_CLIENT_ID" is not set.');
+        $this->expectException(ClientException::class);
+        $this->expectExceptionMessage('Environment variable "AZURE_CLIENT_ID" is not set.');
         $authenticator->checkUsability();
     }
 
@@ -81,8 +79,8 @@ class FederatedTokenAuthenticatorTest extends BaseTest
             'https://vault.azure.net',
         );
         putenv('AZURE_FEDERATED_TOKEN_FILE=');
-        self::expectException(ClientException::class);
-        self::expectExceptionMessage('Environment variable "AZURE_FEDERATED_TOKEN_FILE" is not set.');
+        $this->expectException(ClientException::class);
+        $this->expectExceptionMessage('Environment variable "AZURE_FEDERATED_TOKEN_FILE" is not set.');
         $authenticator->checkUsability();
     }
 
@@ -98,8 +96,8 @@ class FederatedTokenAuthenticatorTest extends BaseTest
             'https://vault.azure.net',
         );
 
-        self::expectException(ClientException::class);
-        self::expectExceptionMessage('Federated token file "/non-existent-file" does not exist.');
+        $this->expectException(ClientException::class);
+        $this->expectExceptionMessage('Federated token file "/non-existent-file" does not exist.');
         $authenticator->checkUsability();
     }
 
@@ -267,8 +265,8 @@ class FederatedTokenAuthenticatorTest extends BaseTest
             ['handler' => $handlerStack],
         );
 
-        self::expectException(ClientException::class);
-        self::expectExceptionMessage('Failed to get authentication token: Token request failed');
+        $this->expectException(ClientException::class);
+        $this->expectExceptionMessage('Failed to get authentication token: Token request failed');
         $authenticator->getAuthenticationToken();
     }
 
@@ -296,8 +294,8 @@ class FederatedTokenAuthenticatorTest extends BaseTest
             ['handler' => $handlerStack],
         );
 
-        self::expectException(InvalidResponseException::class);
-        self::expectExceptionMessage(
+        $this->expectException(InvalidResponseException::class);
+        $this->expectExceptionMessage(
             'Access token not provided in response: {"token_type":"Bearer","expires_in":3600}',
         );
         $authenticator->getAuthenticationToken();
