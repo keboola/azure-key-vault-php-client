@@ -16,8 +16,9 @@ use Keboola\AzureKeyVaultClient\Authentication\ClientCredentialsEnvironmentAuthe
 use Keboola\AzureKeyVaultClient\Authentication\ManagedCredentialsAuthenticator;
 use Keboola\AzureKeyVaultClient\GuzzleClientFactory;
 use Keboola\AzureKeyVaultClient\Tests\BaseTest;
+use Monolog\Handler\TestHandler;
+use Monolog\Logger;
 use Psr\Log\NullLogger;
-use Psr\Log\Test\TestLogger;
 
 class AuthenticationFactoryTest extends BaseTest
 {
@@ -35,7 +36,9 @@ class AuthenticationFactoryTest extends BaseTest
     {
         /* Even if the instance metadata is not available, the managed credentials authenticator is
             returned because it's verification is optimized out */
-        $logger = new TestLogger();
+        $logsHandler = new TestHandler();
+        $logger = new Logger('test', [$logsHandler]);
+
         $mock = $this->createMock(Client::class);
         $mock->method('get')
             ->with('/metadata?api-version=2019-11-01&format=text')
@@ -52,7 +55,7 @@ class AuthenticationFactoryTest extends BaseTest
         $authenticationFactory = new AuthenticatorFactory();
         $authenticator = $authenticationFactory->getAuthenticator($factoryMock, 'https://vault.azure.net');
         self::assertInstanceOf(ManagedCredentialsAuthenticator::class, $authenticator);
-        self::assertTrue($logger->hasDebugThatContains(
+        self::assertTrue($logsHandler->hasDebugThatContains(
             'ClientCredentialsEnvironmentAuthenticator is not usable: ' .
             'Environment variable "AZURE_TENANT_ID" is not set.',
         ));

@@ -12,9 +12,9 @@ use Keboola\AzureKeyVaultClient\Requests\EncryptDecryptRequest;
 use Keboola\AzureKeyVaultClient\Requests\EncryptRequest;
 use Keboola\AzureKeyVaultClient\Requests\SecretAttributes;
 use Keboola\AzureKeyVaultClient\Requests\SetSecretRequest;
+use Monolog\Logger;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\NullLogger;
-use Psr\Log\Test\TestLogger;
 use RuntimeException;
 
 class ClientFunctionalTest extends TestCase
@@ -52,7 +52,7 @@ class ClientFunctionalTest extends TestCase
     public function testEncryptDecrypt(): void
     {
         $payload = ')_+\\(*&^%$#@!)/"\'junk';
-        $logger = new TestLogger();
+        $logger = new Logger('test');
         $client = new Client(
             new GuzzleClientFactory($logger),
             new AuthenticatorFactory(),
@@ -87,7 +87,7 @@ class ClientFunctionalTest extends TestCase
     public function testSetGetSecret(): void
     {
         $payload = ')_+\\(*&^%$#@!)/"\'junk';
-        $logger = new TestLogger();
+        $logger = new Logger('test');
         $client = new Client(
             new GuzzleClientFactory($logger),
             new AuthenticatorFactory(),
@@ -107,7 +107,7 @@ class ClientFunctionalTest extends TestCase
     public function testGetSecretDefaultVersion(): void
     {
         $payload = ')_+\\(*&^%$#@!)/"\'junk';
-        $logger = new TestLogger();
+        $logger = new Logger('test');
         $client = new Client(
             new GuzzleClientFactory($logger),
             new AuthenticatorFactory(),

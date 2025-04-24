@@ -14,9 +14,10 @@ use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Response;
 use Keboola\AzureKeyVaultClient\Exception\ClientException;
 use Keboola\AzureKeyVaultClient\GuzzleClientFactory;
+use Monolog\Handler\TestHandler;
+use Monolog\Logger;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\NullLogger;
-use Psr\Log\Test\TestLogger;
 
 class GuzzleClientFactoryTest extends TestCase
 {
@@ -70,12 +71,15 @@ class GuzzleClientFactoryTest extends TestCase
 
     public function testLogger(): void
     {
-        $logger = new TestLogger();
+        $logsHandler = new TestHandler();
+        $logger = new Logger('test', [$logsHandler]);
+
         $factory = new GuzzleClientFactory(new NullLogger());
         $client = $factory->getClient('https://example.com', ['logger' => $logger, 'userAgent' => 'test-client']);
         $client->get('');
-        self::assertTrue($logger->hasInfoThatContains('test-client - ['));
-        self::assertTrue($logger->hasInfoThatContains('"GET  /1.1" 200'));
+
+        self::assertTrue($logsHandler->hasInfoThatContains('test-client - ['));
+        self::assertTrue($logsHandler->hasInfoThatContains('"GET  /1.1" 200'));
     }
 
     public function testDefaultHeader(): void
@@ -220,7 +224,10 @@ class GuzzleClientFactoryTest extends TestCase
         $history = Middleware::history($requestHistory);
         $stack = HandlerStack::create($mock);
         $stack->push($history);
-        $logger = new TestLogger();
+
+        $logsHandler = new TestHandler();
+        $logger = new Logger('test', [$logsHandler]);
+
         $factory = new GuzzleClientFactory($logger);
         $client = $factory->getClient(
             'https://example.com',
@@ -236,10 +243,10 @@ class GuzzleClientFactoryTest extends TestCase
         self::assertEquals('https://example.com', $request->getUri()->__toString());
         $request = $requestHistory[2]['request'];
         self::assertEquals('https://example.com', $request->getUri()->__toString());
-        self::assertTrue($logger->hasWarningThatContains(
+        self::assertTrue($logsHandler->hasWarningThatContains(
             'Request failed (Server error: `GET https://example.com` resulted in a `501 Not Implemented`',
         ));
-        self::assertTrue($logger->hasWarningThatContains('retrying (1 of 2)'));
+        self::assertTrue($logsHandler->hasWarningThatContains('retrying (1 of 2)'));
     }
 
     public function testRetryDeciderThrottlingRetrySuccess(): void
@@ -266,7 +273,10 @@ class GuzzleClientFactoryTest extends TestCase
         $history = Middleware::history($requestHistory);
         $stack = HandlerStack::create($mock);
         $stack->push($history);
-        $logger = new TestLogger();
+
+        $logsHandler = new TestHandler();
+        $logger = new Logger('test', [$logsHandler]);
+
         $factory = new GuzzleClientFactory($logger);
         $client = $factory->getClient(
             'https://example.com',
@@ -282,9 +292,9 @@ class GuzzleClientFactoryTest extends TestCase
         self::assertEquals('https://example.com', $request->getUri()->__toString());
         $request = $requestHistory[2]['request'];
         self::assertEquals('https://example.com', $request->getUri()->__toString());
-        self::assertTrue($logger->hasWarningThatContains(
+        self::assertTrue($logsHandler->hasWarningThatContains(
             'Request failed (Client error: `GET https://example.com` resulted in a `429 Too Many Requests`',
         ));
-        self::assertTrue($logger->hasWarningThatContains('retrying (1 of 2)'));
+        self::assertTrue($logsHandler->hasWarningThatContains('retrying (1 of 2)'));
     }
 }
