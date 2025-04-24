@@ -14,8 +14,9 @@ use Keboola\AzureKeyVaultClient\Client;
 use Keboola\AzureKeyVaultClient\Exception\ClientException;
 use Keboola\AzureKeyVaultClient\GuzzleClientFactory;
 use Keboola\AzureKeyVaultClient\Requests\EncryptRequest;
+use Monolog\Handler\TestHandler;
+use Monolog\Logger;
 use Psr\Log\NullLogger;
-use Psr\Log\Test\TestLogger;
 
 class ClientTest extends BaseTest
 {
@@ -119,7 +120,10 @@ class ClientTest extends BaseTest
         $history = Middleware::history($requestHistory);
         $stack = HandlerStack::create($mock);
         $stack->push($history);
-        $logger = new TestLogger();
+
+        $logsHandler = new TestHandler();
+        $logger = new Logger('test', [$logsHandler]);
+
         $factory = new GuzzleClientFactory($logger);
         $client = $factory->getClient('https://example.com', ['handler' => $stack]);
 
@@ -142,8 +146,8 @@ class ClientTest extends BaseTest
             self::assertEquals($expectedError, $e->getMessage());
             self::assertEquals(400, $e->getCode());
         }
-        self::assertFalse($logger->hasWarningThatContains('Request failed'));
-        self::assertFalse($logger->hasWarningThatContains('retrying'));
+        self::assertFalse($logsHandler->hasWarningThatContains('Request failed'));
+        self::assertFalse($logsHandler->hasWarningThatContains('retrying'));
         self::assertCount(3, $requestHistory);
         /** @var Request $request */
         $request = $requestHistory[0]['request'];
@@ -226,7 +230,10 @@ class ClientTest extends BaseTest
         $history = Middleware::history($requestHistory);
         $stack = HandlerStack::create($mock);
         $stack->push($history);
-        $logger = new TestLogger();
+
+        $logsHandler = new TestHandler();
+        $logger = new Logger('test', [$logsHandler]);
+
         $factory = new GuzzleClientFactory($logger);
         $client = $factory->getClient('https://example.com', ['handler' => $stack, 'backoffMaxTries' => 2]);
 
@@ -249,8 +256,10 @@ class ClientTest extends BaseTest
             self::assertEquals('Boo: Cooties!', $e->getMessage());
             self::assertEquals(500, $e->getCode());
         }
-        self::assertTrue($logger->hasWarningThatContains('Request failed (Server error: `POST https://example.com'));
-        self::assertTrue($logger->hasWarningThatContains('retrying (1 of 2)'));
+        self::assertTrue($logsHandler->hasWarningThatContains(
+            'Request failed (Server error: `POST https://example.com',
+        ));
+        self::assertTrue($logsHandler->hasWarningThatContains('retrying (1 of 2)'));
         self::assertCount(5, $requestHistory);
         /** @var Request $request */
         $request = $requestHistory[0]['request'];

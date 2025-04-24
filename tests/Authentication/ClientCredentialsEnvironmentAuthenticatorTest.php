@@ -13,8 +13,9 @@ use Keboola\AzureKeyVaultClient\Authentication\ClientCredentialsEnvironmentAuthe
 use Keboola\AzureKeyVaultClient\Exception\ClientException;
 use Keboola\AzureKeyVaultClient\GuzzleClientFactory;
 use Keboola\AzureKeyVaultClient\Tests\BaseTest;
+use Monolog\Handler\TestHandler;
+use Monolog\Logger;
 use Psr\Log\NullLogger;
-use Psr\Log\Test\TestLogger;
 
 class ClientCredentialsEnvironmentAuthenticatorTest extends BaseTest
 {
@@ -56,16 +57,18 @@ class ClientCredentialsEnvironmentAuthenticatorTest extends BaseTest
 
     public function testValidEnvironmentSettings(): void
     {
-        $logger = new TestLogger();
+        $logsHandler = new TestHandler();
+        $logger = new Logger('test', [$logsHandler]);
+
         $authenticator = new ClientCredentialsEnvironmentAuthenticator(
             new GuzzleClientFactory($logger),
             'https://vault.azure.net',
         );
         $authenticator->checkUsability();
-        self::assertTrue($logger->hasDebugThatContains(
+        self::assertTrue($logsHandler->hasDebugThatContains(
             'AZURE_AD_RESOURCE environment variable is not specified, falling back to default.',
         ));
-        self::assertTrue($logger->hasDebugThatContains(
+        self::assertTrue($logsHandler->hasDebugThatContains(
             'AZURE_ENVIRONMENT environment variable is not specified, falling back to default.',
         ));
     }
@@ -74,23 +77,28 @@ class ClientCredentialsEnvironmentAuthenticatorTest extends BaseTest
     {
         putenv('AZURE_AD_RESOURCE=https://example.com');
         putenv('AZURE_ENVIRONMENT=123');
-        $logger = new TestLogger();
+
+        $logsHandler = new TestHandler();
+        $logger = new Logger('test', [$logsHandler]);
+
         $authenticator = new ClientCredentialsEnvironmentAuthenticator(
             new GuzzleClientFactory($logger),
             'https://vault.azure.net',
         );
         $authenticator->checkUsability();
-        self::assertFalse($logger->hasDebugThatContains(
+        self::assertFalse($logsHandler->hasDebugThatContains(
             'AZURE_AD_RESOURCE environment variable is not specified, falling back to default.',
         ));
-        self::assertFalse($logger->hasDebugThatContains(
+        self::assertFalse($logsHandler->hasDebugThatContains(
             'AZURE_ENVIRONMENT environment variable is not specified, falling back to default.',
         ));
     }
 
     public function testInvalidAdResource(): void
     {
-        $logger = new TestLogger();
+        $logsHandler = new TestHandler();
+        $logger = new Logger('test', [$logsHandler]);
+
         putenv('AZURE_AD_RESOURCE=not-an-url');
         putenv('AzureCloud=123');
         self::expectException(ClientException::class);

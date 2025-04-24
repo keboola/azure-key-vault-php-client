@@ -15,8 +15,9 @@ use Keboola\AzureKeyVaultClient\Exception\ClientException;
 use Keboola\AzureKeyVaultClient\Exception\InvalidResponseException;
 use Keboola\AzureKeyVaultClient\GuzzleClientFactory;
 use Keboola\AzureKeyVaultClient\Tests\BaseTest;
+use Monolog\Handler\TestHandler;
+use Monolog\Logger;
 use Psr\Log\NullLogger;
-use Psr\Log\Test\TestLogger;
 use ReflectionClass;
 
 /**
@@ -103,13 +104,16 @@ class FederatedTokenAuthenticatorTest extends BaseTest
 
     public function testValidEnvironmentSettings(): void
     {
-        $logger = new TestLogger();
+
+        $logsHandler = new TestHandler();
+        $logger = new Logger('test', [$logsHandler]);
+
         $authenticator = new FederatedTokenAuthenticator(
             new GuzzleClientFactory($logger),
             'https://vault.azure.net',
         );
         $authenticator->checkUsability();
-        self::assertTrue($logger->hasDebugThatContains(
+        self::assertTrue($logsHandler->hasDebugThatContains(
             'AZURE_AUTHORITY_HOST environment variable is not specified, falling back to default.',
         ));
     }
@@ -117,13 +121,16 @@ class FederatedTokenAuthenticatorTest extends BaseTest
     public function testValidFullEnvironmentSettings(): void
     {
         putenv('AZURE_AUTHORITY_HOST=https://login.example.com');
-        $logger = new TestLogger();
+
+        $logsHandler = new TestHandler();
+        $logger = new Logger('test', [$logsHandler]);
+
         $authenticator = new FederatedTokenAuthenticator(
             new GuzzleClientFactory($logger),
             'https://vault.azure.net',
         );
         $authenticator->checkUsability();
-        self::assertFalse($logger->hasDebugThatContains(
+        self::assertFalse($logsHandler->hasDebugThatContains(
             'AZURE_AUTHORITY_HOST environment variable is not specified, falling back to default.',
         ));
     }
