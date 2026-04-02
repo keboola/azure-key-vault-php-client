@@ -114,6 +114,13 @@ class FederatedTokenAuthenticator implements AuthenticatorInterface
         }
 
         $this->clearTokenFileStatCache();
+
+        // Immediately retry after clearing stat cache (file may have just been rotated)
+        $token = @file_get_contents($this->federatedTokenFile);
+        if ($token !== false && trim($token) !== '') {
+            return $token;
+        }
+
         throw new ClientException(sprintf(
             'Failed to read federated token from file "%s"',
             $this->federatedTokenFile,
