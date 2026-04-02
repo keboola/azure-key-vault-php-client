@@ -1,10 +1,7 @@
-version: "3"
 services:
   # for development purposes
   tests: &tests
-    build:
-      context: .
-      dockerfile: Dockerfile
+    build: .
     environment:
       - TEST_TENANT_ID
       - TEST_CLIENT_ID
@@ -12,11 +9,6 @@ services:
       - TEST_KEY_VAULT_URL
       - TEST_KEY_NAME
       - TEST_KEY_VERSION
-      # For Codeclimate
-      - CC_TEST_REPORTER_ID
-      - GIT_BRANCH
-      - GIT_COMMIT_SHA
-    command: ["composer", "ci"]
 
   tests-local:
     <<: *tests
@@ -26,8 +18,7 @@ services:
   ci:
     <<: *tests
     build:
-      context: .
-      dockerfile: Dockerfile
-    command: ["/code/docker/tests-cc.sh"]
+      args:
+        PHP_VERSION: ${PHP_VERSION:-8.3}
     volumes:
       - ./build/logs/:/code/build/logs/

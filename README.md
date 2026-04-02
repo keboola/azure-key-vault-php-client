@@ -1,4 +1,4 @@
-# Azure Key Vault PHP Client [![Build Status](https://dev.azure.com/keboola-dev/azure-key-vault-php-client/_apis/build/status/keboola.azure-key-vault-php-client?branchName=master)](https://dev.azure.com/keboola-dev/azure-key-vault-php-client/_build/latest?definitionId=12&branchName=master) [![Maintainability](https://api.codeclimate.com/v1/badges/fe983803eb7d71a87a34/maintainability)](https://codeclimate.com/github/keboola/azure-key-vault-php-client/maintainability) [![Test Coverage](https://api.codeclimate.com/v1/badges/fe983803eb7d71a87a34/test_coverage)](https://codeclimate.com/github/keboola/azure-key-vault-php-client/test_coverage)
+# Azure Key Vault PHP Client [![Build Status](https://github.com/keboola/azure-key-vault-php-client/actions/workflows/ci.yml/badge.svg)](https://github.com/keboola/azure-key-vault-php-client/actions/workflows/ci.yml)
 
 PHP client for [Azure Key Vault](https://docs.microsoft.com/en-us/rest/api/keyvault/).
 
@@ -35,11 +35,7 @@ $result = $client->encrypt(
 
 Run tests with:
 
-    docker compose run --rm testsXX
-
-where XX is PHP version (56 - 74), e.g.:
-
-    docker compose run --rm tests70
+    docker compose run --rm tests
 
 ### Resources Setup
 

@@ -40,7 +40,7 @@ class ClientCredentialsEnvironmentAuthenticator implements AuthenticatorInterfac
     public function __construct(GuzzleClientFactory $clientFactory, string $resource)
     {
         $this->logger = $clientFactory->getLogger();
-        $this->armUrl = (string) getenv(static::ENV_AZURE_AD_RESOURCE);
+        $this->armUrl = is_string($env = getenv(static::ENV_AZURE_AD_RESOURCE)) ? $env : '';
         $this->resource = $resource;
         if (!$this->armUrl) {
             $this->armUrl = static::DEFAULT_ARM_URL;
@@ -48,7 +48,7 @@ class ClientCredentialsEnvironmentAuthenticator implements AuthenticatorInterfac
                 static::ENV_AZURE_AD_RESOURCE . ' environment variable is not specified, falling back to default.',
             );
         }
-        $this->cloudName = (string) getenv(static::ENV_AZURE_ENVIRONMENT);
+        $this->cloudName = is_string($env = getenv(static::ENV_AZURE_ENVIRONMENT)) ? $env : '';
         if (!$this->cloudName) {
             $this->cloudName = static::DEFAULT_PUBLIC_CLOUD_NAME;
             $this->logger->debug(
@@ -56,9 +56,9 @@ class ClientCredentialsEnvironmentAuthenticator implements AuthenticatorInterfac
             );
         }
 
-        $this->tenantId = (string) getenv(static::ENV_AZURE_TENANT_ID);
-        $this->clientId = (string) getenv(static::ENV_AZURE_CLIENT_ID);
-        $this->clientSecret = (string) getenv(static::ENV_AZURE_CLIENT_SECRET);
+        $this->tenantId = is_string($env = getenv(static::ENV_AZURE_TENANT_ID)) ? $env : '';
+        $this->clientId = is_string($env = getenv(static::ENV_AZURE_CLIENT_ID)) ? $env : '';
+        $this->clientSecret = is_string($env = getenv(static::ENV_AZURE_CLIENT_SECRET)) ? $env : '';
         $this->client = $clientFactory->getClient($this->armUrl);
     }
 
