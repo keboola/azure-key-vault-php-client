@@ -346,6 +346,49 @@ class FederatedTokenAuthenticatorTest extends BaseTest
         self::assertSame(2, $authenticator->callCount);
     }
 
+    public function testAuthenticateRetriesOnEmptyTokenFile(): void
+    {
+        putenv('AZURE_TENANT_ID=test-tenant');
+        putenv('AZURE_CLIENT_ID=test-client');
+        putenv('AZURE_FEDERATED_TOKEN_FILE=' . self::TEST_FEDERATED_TOKEN_FILE);
+
+        $mockHandler = new MockHandler([
+            new Response(200, [], (string) json_encode([
+                'access_token' => 'retried-token',
+                'expires_in' => 3600,
+                'token_type' => 'Bearer',
+            ])),
+        ]);
+
+        $handlerStack = HandlerStack::create($mockHandler);
+
+        $authenticator = new class(
+            new GuzzleClientFactory(new NullLogger()),
+            'https://vault.azure.net',
+            ['handler' => $handlerStack]
+        ) extends FederatedTokenAuthenticator {
+            public int $callCount = 0;
+
+            protected function readFederatedToken(): string
+            {
+                $this->callCount++;
+                $tokenFile = (string) getenv('AZURE_FEDERATED_TOKEN_FILE');
+
+                if ($this->callCount === 1) {
+                    file_put_contents($tokenFile, '');
+                } else {
+                    file_put_contents($tokenFile, 'test-federated-token');
+                }
+
+                return parent::readFederatedToken();
+            }
+        };
+
+        $token = $authenticator->getAuthenticationToken();
+        self::assertSame('retried-token', $token);
+        self::assertSame(2, $authenticator->callCount);
+    }
+
     public function testAuthenticateFailsAfterAllRetries(): void
     {
         putenv('AZURE_TENANT_ID=test-tenant');
