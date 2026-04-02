@@ -108,9 +108,14 @@ class FederatedTokenAuthenticator implements AuthenticatorInterface
 
     protected function readFederatedToken(): string
     {
-        clearstatcache(true, $this->federatedTokenFile);
         $token = @file_get_contents($this->federatedTokenFile);
         if ($token === false) {
+            $link = readlink($this->federatedTokenFile);
+            if ($link !== false) {
+                clearstatcache(true, dirname($this->federatedTokenFile) . '/' . $link);
+                clearstatcache(true, dirname($this->federatedTokenFile) . '/' . dirname($link));
+            }
+            clearstatcache(true, $this->federatedTokenFile);
             throw new ClientException(sprintf(
                 'Failed to read federated token from file "%s"',
                 $this->federatedTokenFile,
