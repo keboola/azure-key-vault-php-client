@@ -29,6 +29,7 @@
         "php": ">=8.2",
         "ext-json": "*",
         "guzzlehttp/guzzle": "^7.5",
+        "keboola/retry": "^0.5",
         "psr/log": "^1.1|^2.0|^3.0",
         "symfony/config": "^5.0|^6.0|^7.0",
         "symfony/validator": "^5.0|^6.0|^7.0"

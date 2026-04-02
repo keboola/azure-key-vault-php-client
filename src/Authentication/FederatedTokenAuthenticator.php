@@ -11,6 +11,9 @@ use Keboola\AzureKeyVaultClient\Exception\ClientException;
 use Keboola\AzureKeyVaultClient\Exception\InvalidResponseException;
 use Keboola\AzureKeyVaultClient\GuzzleClientFactory;
 use Psr\Log\LoggerInterface;
+use Retry\BackOff\ExponentialBackOffPolicy;
+use Retry\Policy\SimpleRetryPolicy;
+use Retry\RetryProxy;
 
 class FederatedTokenAuthenticator implements AuthenticatorInterface
 {
@@ -103,16 +106,49 @@ class FederatedTokenAuthenticator implements AuthenticatorInterface
         return $currentTime >= ($this->tokenExpiresAt - self::TOKEN_REFRESH_BUFFER);
     }
 
+    protected function readFederatedToken(): string
+    {
+        $token = @file_get_contents($this->federatedTokenFile);
+        if ($token !== false && trim($token) !== '') {
+            return $token;
+        }
+
+        $this->clearTokenFileStatCache();
+
+        // Immediately retry after clearing stat cache (file may have just been rotated)
+        $token = @file_get_contents($this->federatedTokenFile);
+        if ($token !== false && trim($token) !== '') {
+            return $token;
+        }
+
+        throw new ClientException(sprintf(
+            'Failed to read federated token from file "%s"',
+            $this->federatedTokenFile,
+        ));
+    }
+
+    private function clearTokenFileStatCache(): void
+    {
+        if (is_link($this->federatedTokenFile)) {
+            $link = readlink($this->federatedTokenFile);
+            if ($link !== false) {
+                clearstatcache(true, dirname($this->federatedTokenFile) . '/' . $link);
+                clearstatcache(true, dirname($this->federatedTokenFile) . '/' . dirname($link));
+            }
+        }
+        clearstatcache(true, $this->federatedTokenFile);
+    }
+
     private function authenticate(): string
     {
         try {
-            $federatedToken = @file_get_contents($this->federatedTokenFile);
-            if ($federatedToken === false) {
-                throw new ClientException(sprintf(
-                    'Failed to read federated token from file "%s"',
-                    $this->federatedTokenFile,
-                ));
-            }
+            $retryProxy = new RetryProxy(
+                new SimpleRetryPolicy(5, [ClientException::class]),
+                new ExponentialBackOffPolicy(100),
+                $this->logger,
+            );
+
+            $federatedToken = $retryProxy->call(fn () => $this->readFederatedToken());
 
             $response = $this->client->post(
                 sprintf('%s/%s/oauth2/v2.0/token', $this->authorityHost, $this->tenantId),
