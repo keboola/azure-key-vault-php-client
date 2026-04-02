@@ -1,4 +1,5 @@
-FROM php:8.3-cli
+ARG PHP_VERSION=8.3
+FROM php:${PHP_VERSION}-cli
 
 ENV COMPOSER_ALLOW_SUPERUSER 1
 ENV XDEBUG_MODE=coverage
@@ -22,3 +23,5 @@ COPY composer.* ./
 RUN composer install $COMPOSER_FLAGS --no-scripts --no-autoloader
 COPY . .
 RUN composer install $COMPOSER_FLAGS
+
+CMD ["composer", "ci"]

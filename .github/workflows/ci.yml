@@ -1,0 +1,26 @@
+name: CI
+
+on:
+  push:
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    strategy:
+      max-parallel: 1
+      matrix:
+        php-version: ["8.2", "8.3", "8.4"]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run Tests
+        env:
+          PHP_VERSION: ${{ matrix.php-version }}
+          TEST_KEY_VERSION: ddde080bf31543d8a3d757c5001c4d55
+          TEST_TENANT_ID: 9b85ee6f-4fb0-4a46-8cb7-4dcc6b262a89
+          TEST_KEY_VAULT_URL: https://testing-key-vault-client.vault.azure.net
+          TEST_KEY_NAME: test-key
+          TEST_CLIENT_ID: 8ac77494-8c07-4302-9fcc-16e61dfadb7a
+          TEST_CLIENT_SECRET: ${{ secrets.TEST_CLIENT_SECRET }}
+        run: docker compose build ci && docker compose run --rm ci

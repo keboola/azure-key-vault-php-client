@@ -1,10 +1,11 @@
 parameters:
     level: max
-    checkMissingIterableValueType: false
     paths:
         - src
         - tests
     ignoreErrors:
+        - identifier: missingType.iterableValue
+        - '#Cannot cast array<string, string>\|string\|false to string\.#'
         - '#Parameter \#2 \.\.\.\$values of function sprintf expects bool\|float\|int\|string\|null, mixed given\.#'
 includes:
     - vendor/phpstan/phpstan-phpunit/extension.neon
