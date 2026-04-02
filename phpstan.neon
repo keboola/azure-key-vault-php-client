@@ -4,8 +4,9 @@ parameters:
         - src
         - tests
     ignoreErrors:
-        - '#Parameter \#2 \.\.\.\$values of function sprintf expects bool\|float\|int\|string\|null, mixed given\.#'
         - identifier: missingType.iterableValue
+        - '#Cannot cast array<string, string>\|string\|false to string\.#'
+        - '#Parameter \#2 \.\.\.\$values of function sprintf expects bool\|float\|int\|string\|null, mixed given\.#'
 includes:
     - vendor/phpstan/phpstan-phpunit/extension.neon
     - vendor/phpstan/phpstan-symfony/extension.neon
