@@ -308,6 +308,72 @@ class FederatedTokenAuthenticatorTest extends BaseTest
         $authenticator->getAuthenticationToken();
     }
 
+    public function testAuthenticateRetriesOnMissingTokenFile(): void
+    {
+        putenv('AZURE_TENANT_ID=test-tenant');
+        putenv('AZURE_CLIENT_ID=test-client');
+        putenv('AZURE_FEDERATED_TOKEN_FILE=' . self::TEST_FEDERATED_TOKEN_FILE);
+
+        $mockHandler = new MockHandler([
+            new Response(200, [], (string) json_encode([
+                'access_token' => 'retried-token',
+                'expires_in' => 3600,
+                'token_type' => 'Bearer',
+            ])),
+        ]);
+
+        $handlerStack = HandlerStack::create($mockHandler);
+
+        $authenticator = new class(
+            new GuzzleClientFactory(new NullLogger()),
+            'https://vault.azure.net',
+            ['handler' => $handlerStack]
+        ) extends FederatedTokenAuthenticator {
+            public int $callCount = 0;
+
+            protected function readFederatedToken(): string
+            {
+                $this->callCount++;
+                if ($this->callCount === 1) {
+                    throw new ClientException('Failed to read federated token from file (simulated)');
+                }
+                return 'test-federated-token';
+            }
+        };
+
+        $token = $authenticator->getAuthenticationToken();
+        self::assertSame('retried-token', $token);
+        self::assertSame(2, $authenticator->callCount);
+    }
+
+    public function testAuthenticateFailsAfterAllRetries(): void
+    {
+        putenv('AZURE_TENANT_ID=test-tenant');
+        putenv('AZURE_CLIENT_ID=test-client');
+        putenv('AZURE_FEDERATED_TOKEN_FILE=/non-existent-token-file');
+
+        $authenticator = new class(
+            new GuzzleClientFactory(new NullLogger()),
+            'https://vault.azure.net',
+        ) extends FederatedTokenAuthenticator {
+            public int $callCount = 0;
+
+            protected function readFederatedToken(): string
+            {
+                $this->callCount++;
+                throw new ClientException('Failed to read federated token from file (simulated)');
+            }
+        };
+
+        try {
+            $authenticator->getAuthenticationToken();
+            self::fail('Expected ClientException was not thrown');
+        } catch (ClientException $e) {
+            self::assertMatchesRegularExpression('/Failed to read federated token from file/', $e->getMessage());
+            self::assertSame(5, $authenticator->callCount);
+        }
+    }
+
     public function testTokenExpiration(): void
     {
         // Set up required environment variables

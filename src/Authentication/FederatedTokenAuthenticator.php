@@ -11,6 +11,9 @@ use Keboola\AzureKeyVaultClient\Exception\ClientException;
 use Keboola\AzureKeyVaultClient\Exception\InvalidResponseException;
 use Keboola\AzureKeyVaultClient\GuzzleClientFactory;
 use Psr\Log\LoggerInterface;
+use Retry\BackOff\ExponentialBackOffPolicy;
+use Retry\Policy\SimpleRetryPolicy;
+use Retry\RetryProxy;
 
 class FederatedTokenAuthenticator implements AuthenticatorInterface
 {
@@ -103,16 +106,29 @@ class FederatedTokenAuthenticator implements AuthenticatorInterface
         return $currentTime >= ($this->tokenExpiresAt - self::TOKEN_REFRESH_BUFFER);
     }
 
+    protected function readFederatedToken(): string
+    {
+        clearstatcache(true, $this->federatedTokenFile);
+        $token = @file_get_contents($this->federatedTokenFile);
+        if ($token === false) {
+            throw new ClientException(sprintf(
+                'Failed to read federated token from file "%s"',
+                $this->federatedTokenFile,
+            ));
+        }
+        return $token;
+    }
+
     private function authenticate(): string
     {
         try {
-            $federatedToken = @file_get_contents($this->federatedTokenFile);
-            if ($federatedToken === false) {
-                throw new ClientException(sprintf(
-                    'Failed to read federated token from file "%s"',
-                    $this->federatedTokenFile,
-                ));
-            }
+            $retryProxy = new RetryProxy(
+                new SimpleRetryPolicy(5, [ClientException::class]),
+                new ExponentialBackOffPolicy(100),
+                $this->logger,
+            );
+
+            $federatedToken = $retryProxy->call(fn () => $this->readFederatedToken());
 
             $response = $this->client->post(
                 sprintf('%s/%s/oauth2/v2.0/token', $this->authorityHost, $this->tenantId),
